@@ -1,30 +1,109 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* Smooth colour transitions across the app */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease,
-    border-color 0.3s ease;
-}
-
+/* ── Base ──────────────────────────────────────────────────────────────────── */
 html,
 body {
   min-height: 100vh;
-  background-color: #111827; /* gray-900 */
-  color: #f3f4f6; /* gray-100 */
+  background-color: #000;
+  color: #f3f4f6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Thin scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* ── Focus ring ────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
-::-webkit-scrollbar-track {
-  background: #1f2937;
+
+/* ── Smooth page transitions ───────────────────────────────────────────────── */
+main { animation: fadeIn 0.25s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 3px;
+
+/* ── Glass card utility ────────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #6366f1;
+
+/* ── Form inputs — unified dark style ─────────────────────────────────────── */
+.vm-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+.vm-input:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+.vm-input::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+/* ── Primary button ────────────────────────────────────────────────────────── */
+.vm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+.vm-btn:active { transform: scale(0.98); }
+.vm-btn-white {
+  background: #fff;
+  color: #000;
+  border: 1px solid transparent;
+}
+.vm-btn-white:hover { opacity: 0.88; }
+.vm-btn-outline {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.vm-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.vm-btn-ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.vm-btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* ── Ticker / marquee ──────────────────────────────────────────────────────── */
+.marquee-track {
+  display: flex;
+  gap: 2rem;
+  animation: marquee 28s linear infinite;
+  will-change: transform;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }

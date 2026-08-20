@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "compile-ts": "tsc --noEmit"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
@@ -18,6 +19,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-redux": "^9.2.0",
+    "recharts": "^3.10.1",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {

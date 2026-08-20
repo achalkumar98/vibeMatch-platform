@@ -73,6 +73,18 @@ const userSchema = new mongoose.Schema(
     skills: {
       type: [String],
     },
+    lastSeen: {
+      type: Date,
+      default: null,
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    isBanned: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

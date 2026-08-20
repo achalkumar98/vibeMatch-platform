@@ -41,7 +41,12 @@ const router = express.Router();
  *       "404":
  *         description: User not found
  */
-router.post('/request/send/:status/:touserId', userAuth, validate(requestValidation.sendRequest), requestController.sendRequest);
+router.post(
+  '/request/send/:status/:touserId',
+  userAuth,
+  validate(requestValidation.sendRequest),
+  requestController.sendRequest
+);
 
 /**
  * @swagger

@@ -9,6 +9,7 @@ export interface EditProfilePayload {
   age: number | string;
   gender: string;
   about?: string;
+  skills?: string[];
 }
 
 /**

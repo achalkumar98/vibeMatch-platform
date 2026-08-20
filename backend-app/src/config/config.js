@@ -15,6 +15,9 @@ const envVarsSchema = Joi.object()
     RAZORPAY_KEY_ID: Joi.string().description('Razorpay key id'),
     RAZORPAY_KEY_SECRET: Joi.string().description('Razorpay key secret'),
     RAZORPAY_WEBHOOK_SECRET: Joi.string().description('Razorpay webhook secret'),
+    CLOUDINARY_CLOUD_NAME: Joi.string().description('Cloudinary cloud name'),
+    CLOUDINARY_API_KEY: Joi.string().description('Cloudinary API key'),
+    CLOUDINARY_API_SECRET: Joi.string().description('Cloudinary API secret'),
   })
   .unknown();
 
@@ -39,5 +42,10 @@ module.exports = {
     keyId: envVars.RAZORPAY_KEY_ID,
     keySecret: envVars.RAZORPAY_KEY_SECRET,
     webhookSecret: envVars.RAZORPAY_WEBHOOK_SECRET,
+  },
+  cloudinary: {
+    cloudName: envVars.CLOUDINARY_CLOUD_NAME,
+    apiKey: envVars.CLOUDINARY_API_KEY,
+    apiSecret: envVars.CLOUDINARY_API_SECRET,
   },
 };

@@ -69,4 +69,25 @@ router.get('/profile/view', userAuth, userController.getProfile);
  */
 router.put('/profile/edit', userAuth, validate(userValidation.editProfile), userController.editProfile);
 
+/**
+ * @swagger
+ * /heartbeat:
+ *   post:
+ *     summary: Update the logged-in user's lastSeen timestamp (call every ~30s while active)
+ *     tags: [Profile]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ */
+router.post('/heartbeat', userAuth, userController.heartbeat);
+
 module.exports = router;

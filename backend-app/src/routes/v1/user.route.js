@@ -45,7 +45,7 @@ router.get('/user/connections', userAuth, userController.getConnections);
  * @swagger
  * /feed:
  *   get:
- *     summary: Get the feed of other users (paginated)
+ *     summary: Get the feed of other users (cursor or offset paginated)
  *     tags: [Users]
  *     security:
  *       - cookieAuth: []
@@ -54,13 +54,34 @@ router.get('/user/connections', userAuth, userController.getConnections);
  *         name: page
  *         schema:
  *           type: integer
+ *         description: Offset page number (ignored when cursor is supplied)
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
+ *         description: Max results per page (1-50)
+ *       - in: query
+ *         name: cursor
+ *         schema:
+ *           type: string
+ *         description: ObjectId of the last user returned (enables cursor pagination)
  *     responses:
  *       "200":
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 nextCursor:
+ *                   type: string
+ *                   nullable: true
+ *                 hasMore:
+ *                   type: boolean
  */
 router.get('/feed', userAuth, validate(userValidation.getFeed), userController.getFeed);
 

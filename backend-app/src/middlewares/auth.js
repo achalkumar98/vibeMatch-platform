@@ -23,6 +23,15 @@ const userAuth = catchAsync(async (req, res, next) => {
   next();
 });
 
+/** Requires userAuth to run first. Rejects non-admin users with 403. */
+const adminAuth = (req, res, next) => {
+  if (!req.user || !req.user.isAdmin) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Admin access required');
+  }
+  next();
+};
+
 module.exports = {
   userAuth,
+  adminAuth,
 };

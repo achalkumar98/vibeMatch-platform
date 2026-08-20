@@ -9,16 +9,26 @@ export interface User {
   age?: number;
   gender?: string;
   about?: string;
+  skills?: string[];
   isPremium?: boolean;
+  isAdmin?: boolean;
+  isBanned?: boolean;
+  lastSeen?: string | null;
 }
 
 // ─── Feed ────────────────────────────────────────────────────────────────────
 
-export type FeedUser = Omit<User, "emailId">;
+export type FeedUser = Omit<User, "emailId" | "isAdmin" | "isBanned">;
+
+export interface FeedResponse {
+  users: FeedUser[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
 
 // ─── Connection ──────────────────────────────────────────────────────────────
 
-export type Connection = Omit<User, "emailId">;
+export type Connection = Omit<User, "emailId" | "isAdmin" | "isBanned">;
 
 // ─── Connection Request ───────────────────────────────────────────────────────
 
@@ -54,6 +64,37 @@ export interface RazorpayOrderResponse {
     lastName: string;
     emailId: string;
   };
+}
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export interface AdminAnalytics {
+  totalRevenue: number;
+  dailyActiveUsers: number;
+  totalMatches: number;
+  revenueChart: { date: string; revenue: number; count: number }[];
+  dauChart: { date: string; activeUsers: number }[];
+}
+
+export interface AdminUser {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  emailId: string;
+  photoUrl?: string;
+  isPremium: boolean;
+  isAdmin: boolean;
+  isBanned: boolean;
+  lastSeen: string | null;
+  createdAt: string;
+}
+
+export interface AdminUsersResponse {
+  users: AdminUser[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // ─── Redux State ─────────────────────────────────────────────────────────────

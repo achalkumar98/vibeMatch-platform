@@ -27,9 +27,16 @@ const getConnections = catchAsync(async (req, res) => {
 const getFeed = catchAsync(async (req, res) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 10;
+  const cursor = req.query.cursor || null;
 
-  const users = await userService.getFeed(req.user, page, limit);
-  res.send(users);
+  const result = await userService.getFeed(req.user, page, limit, cursor);
+  res.send(result);
+});
+
+// POST /api/heartbeat — updates lastSeen to now, lightweight keep-alive
+const heartbeat = catchAsync(async (req, res) => {
+  await userService.updateLastSeen(req.user._id);
+  res.json({ ok: true });
 });
 
 module.exports = {
@@ -38,4 +45,5 @@ module.exports = {
   getReceivedRequests,
   getConnections,
   getFeed,
+  heartbeat,
 };

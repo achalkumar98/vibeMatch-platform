@@ -1,51 +1,12 @@
-"use client";
+/**
+ * Root route (/).
+ * - Logged-in users are served from /feed (via NavBar link).
+ * - Guests see the public landing page.
+ * We simply render the landing page here; the NavBar "Sign in" / "Sign up"
+ * buttons take authenticated users to /feed.
+ */
+import LandingPage from "./landing/page";
 
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { addFeed } from "@/redux/slices/feedSlice";
-import { getFeedApi } from "@/api/feedApi";
-import UserCard from "@/components/UserCard";
-
-export default function FeedPage() {
-  const feed = useAppSelector((state) => state.feed);
-  const dispatch = useAppDispatch();
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (feed && feed.length > 0) return;
-    (async () => {
-      try {
-        const data = await getFeedApi();
-        dispatch(addFeed(data));
-      } catch (err: unknown) {
-        const msg =
-          err instanceof Error ? err.message : "Failed to fetch feed";
-        setError(msg);
-      }
-    })();
-  }, []);
-
-  if (error) {
-    return (
-      <p className="flex justify-center my-10 text-red-500 text-lg font-semibold">
-        {error}
-      </p>
-    );
-  }
-
-  if (!feed || feed.length === 0) {
-    return (
-      <p className="flex justify-center my-10 text-gray-100 text-lg font-medium">
-        No New Users Found
-      </p>
-    );
-  }
-
-  return (
-    <div className="relative flex justify-center items-center my-10 px-4 sm:px-6 md:px-8 h-[70vh] sm:h-[60vh]">
-      {[...feed].reverse().map((user, index) => (
-        <UserCard key={user._id} user={user} zIndex={index + 1} />
-      ))}
-    </div>
-  );
+export default function HomePage() {
+  return <LandingPage />;
 }
