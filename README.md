@@ -1,4 +1,4 @@
-# ⚡ VibeMatch
+# ⚡ VibeMatch - Swipe Into Your Next Dev Circle 
 
 A full-stack developer networking platform — swipe through profiles, send connection requests, chat in real-time, and manage your community with a built-in admin dashboard.
 
