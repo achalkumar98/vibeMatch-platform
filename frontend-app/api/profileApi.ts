@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 import type { User, ApiResponse } from "@/types";
 
 export interface EditProfilePayload {
@@ -19,7 +19,7 @@ export interface EditProfilePayload {
  */
 export const getProfileApi = async (): Promise<User> => {
   const res = await axios.get<User>(
-    `${BASE_URL}/api/profile/view`,
+    `${API_URL}/profile/view`,
     { withCredentials: true }
   );
   return res.data;
@@ -34,7 +34,7 @@ export const editProfileApi = async (
   payload: EditProfilePayload
 ): Promise<User> => {
   const res = await axios.put<ApiResponse<User>>(
-    `${BASE_URL}/api/profile/edit`,
+    `${API_URL}/profile/edit`,
     payload,
     { withCredentials: true }
   );
@@ -47,7 +47,7 @@ export const editProfileApi = async (
  */
 export const logoutApi = async (): Promise<void> => {
   await axios.post(
-    `${BASE_URL}/api/logout`,
+    `${API_URL}/logout`,
     {},
     { withCredentials: true }
   );

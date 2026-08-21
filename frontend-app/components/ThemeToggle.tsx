@@ -13,7 +13,7 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-8 h-8 rounded-lg skeleton" aria-hidden />
+      <div className="w-20 h-8 rounded-lg skeleton" aria-hidden />
     );
   }
 
@@ -22,14 +22,20 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="vm-btn vm-btn-ghost w-8 h-8 p-0 rounded-lg flex-shrink-0"
+      className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all"
+      style={{
+        background:   "var(--bg-elevated)",
+        border:       "1px solid var(--border-strong)",
+        color:        "var(--text-primary)",
+        minWidth:     "80px",
+      }}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Light mode" : "Dark mode"}
     >
       {isDark ? (
-        <Sun size={15} strokeWidth={1.8} />
+        <><Sun size={14} strokeWidth={1.8} /><span className="text-xs font-medium">Light</span></>
       ) : (
-        <Moon size={15} strokeWidth={1.8} />
+        <><Moon size={14} strokeWidth={1.8} /><span className="text-xs font-medium">Dark</span></>
       )}
     </button>
   );

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 import type { MembershipType, RazorpayOrderResponse } from "@/types";
 
 /**
@@ -8,7 +8,7 @@ import type { MembershipType, RazorpayOrderResponse } from "@/types";
  */
 export const verifyPremiumApi = async (): Promise<boolean> => {
   const res = await axios.get<{ isPremium: boolean }>(
-    `${BASE_URL}/api/premium/verify`,
+    `${API_URL}/premium/verify`,
     { withCredentials: true }
   );
   return res.data.isPremium ?? false;
@@ -23,7 +23,7 @@ export const createPaymentOrderApi = async (
   membershipType: MembershipType
 ): Promise<RazorpayOrderResponse> => {
   const res = await axios.post<RazorpayOrderResponse>(
-    `${BASE_URL}/api/payment/create`,
+    `${API_URL}/payment/create`,
     { membershipType },
     { withCredentials: true }
   );

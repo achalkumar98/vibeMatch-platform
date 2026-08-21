@@ -3,10 +3,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { X, Zap, Loader2, PartyPopper, Clock } from "lucide-react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { X, Zap, Loader2, PartyPopper, Clock, Heart } from "lucide-react";
 import { getFeedApi } from "@/api/feedApi";
 import { sendRequestApi } from "@/api/requestApi";
 import type { FeedUser } from "@/types";
+
+/* Professional neutral avatar */
+const avatarFor = (u: FeedUser) =>
+  u.photoUrl ||
+  `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${encodeURIComponent(
+    u.firstName + u.lastName
+  )}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
 
 export default function FeedPage() {
   const [users,          setUsers]          = useState<FeedUser[]>([]);
@@ -74,7 +82,7 @@ export default function FeedPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--bg-base)", paddingTop: "56px" }}
+        style={{ background: "var(--bg-base)", paddingTop: "60px" }}
       >
         <div className="flex flex-col items-center gap-3" style={{ color: "var(--text-muted)" }}>
           <Loader2 size={28} className="animate-spin" aria-label="Loading" />
@@ -88,7 +96,7 @@ export default function FeedPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--bg-base)", paddingTop: "56px" }}
+        style={{ background: "var(--bg-base)", paddingTop: "60px" }}
       >
         <p className="text-sm" style={{ color: "var(--error)" }} role="alert">{error}</p>
       </div>
@@ -99,7 +107,7 @@ export default function FeedPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--bg-base)", paddingTop: "56px" }}
+        style={{ background: "var(--bg-base)", paddingTop: "60px" }}
       >
         <div className="text-center">
           <PartyPopper size={44} className="mx-auto mb-4" style={{ color: "var(--brand)" }} aria-hidden />
@@ -115,14 +123,15 @@ export default function FeedPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-base)", paddingTop: "56px" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg-base)", paddingTop: "60px" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 items-start justify-center">
 
-          {/* ── Main card ───────────────────────────────────────────────── */}
-          <div className="flex-1 flex flex-col items-center">
+          {/* ── Main card ─────────────────────────────────────────────── */}
+          <div className="flex-1 flex flex-col items-center justify-center min-h-[520px]">
             {currentUser ? (
-              <ProfileCard
+              <SwipeCard
+                key={currentUser._id}
                 user={currentUser}
                 onInterested={() => handleAction("interested", currentUser._id)}
                 onIgnored={() => handleAction("ignored", currentUser._id)}
@@ -161,8 +170,8 @@ export default function FeedPage() {
             )}
           </div>
 
-          {/* ── Side queue ──────────────────────────────────────────────── */}
-          <aside className="lg:w-72 flex flex-col gap-3" aria-label="Upcoming profiles">
+          {/* ── Side queue ────────────────────────────────────────────── */}
+          <aside className="lg:w-64 flex flex-col gap-3" aria-label="Upcoming profiles">
             <p
               className="text-2xs font-semibold uppercase tracking-widest px-1"
               style={{ color: "var(--text-muted)" }}
@@ -190,9 +199,9 @@ export default function FeedPage() {
   );
 }
 
-/* ── ProfileCard ─────────────────────────────────────────────────────────── */
+/* ── SwipeCard — drag left to ignore, drag right to connect ─────────────── */
 
-function ProfileCard({
+function SwipeCard({
   user,
   onInterested,
   onIgnored,
@@ -201,121 +210,166 @@ function ProfileCard({
   onInterested: () => void;
   onIgnored: () => void;
 }) {
-  const { firstName, lastName, age, gender, photoUrl, about, skills, lastSeen } = user;
+  const { firstName, lastName, age, gender, about, skills, lastSeen } = user;
   const lastSeenLabel = lastSeen ? formatLastSeen(lastSeen) : null;
 
-  return (
-    <article
-      className="w-full max-w-sm rounded-2xl overflow-hidden"
-      style={{
-        background: "var(--bg-surface)",
-        border:     "1px solid var(--border)",
-        boxShadow:  "0 20px 50px rgba(0,0,0,0.25)",
-      }}
-    >
-      {/* Photo */}
-      <div className="relative h-72">
-        <Image
-          src={photoUrl || "https://www.gravatar.com/avatar?d=mp"}
-          alt={`${firstName}'s photo`}
-          fill
-          className="object-cover"
-          sizes="384px"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+  const x        = useMotionValue(0);
+  const rotate   = useTransform(x, [-200, 200], [-18, 18]);
+  const opacity  = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
 
-        {/* Name overlay */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <h2 className="text-xl font-bold text-white">
-            {firstName} {lastName}
-          </h2>
-          {age && gender && (
-            <p className="text-sm text-white/65">{age} · {gender}</p>
+  /* Overlay indicators */
+  const connectOpacity = useTransform(x, [20, 100], [0, 1]);
+  const ignoreOpacity  = useTransform(x, [-100, -20], [1, 0]);
+
+  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
+    const threshold = 100;
+    if (info.offset.x > threshold) {
+      animate(x, 600, { duration: 0.35 }).then(onInterested);
+    } else if (info.offset.x < -threshold) {
+      animate(x, -600, { duration: 0.35 }).then(onIgnored);
+    } else {
+      animate(x, 0, { type: "spring", stiffness: 300, damping: 25 });
+    }
+  };
+
+  return (
+    <div className="relative flex flex-col items-center select-none">
+      <motion.article
+        style={{
+          x, rotate, opacity,
+          background: "var(--bg-surface)",
+          border:     "1px solid var(--border)",
+          boxShadow:  "0 20px 50px rgba(0,0,0,0.25)",
+          touchAction: "none",
+        }}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.8}
+        onDragEnd={handleDragEnd}
+        className="w-full max-w-sm rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing"
+        whileTap={{ scale: 1.02 }}
+      >
+        {/* Photo */}
+        <div className="relative h-80">
+          <Image
+            src={avatarFor(user)}
+            alt={`${firstName}'s photo`}
+            fill
+            className="object-cover"
+            sizes="384px"
+            priority
+            draggable={false}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
+
+          {/* Swipe indicators */}
+          <motion.div
+            style={{ opacity: connectOpacity }}
+            className="absolute top-5 left-5 px-3 py-1.5 rounded-xl border-2 border-green-400 text-green-400 font-bold text-lg rotate-[-15deg]"
+          >
+            <Heart size={18} className="inline mr-1" />CONNECT
+          </motion.div>
+          <motion.div
+            style={{ opacity: ignoreOpacity }}
+            className="absolute top-5 right-5 px-3 py-1.5 rounded-xl border-2 border-red-400 text-red-400 font-bold text-lg rotate-[15deg]"
+          >
+            <X size={18} className="inline mr-1" />SKIP
+          </motion.div>
+
+          {/* Name overlay */}
+          <div className="absolute bottom-4 left-4 right-4">
+            <h2 className="text-xl font-bold text-white">
+              {firstName} {lastName}
+            </h2>
+            {age && gender && (
+              <p className="text-sm text-white/65">{age} · {gender}</p>
+            )}
+          </div>
+
+          {/* Last seen */}
+          {lastSeenLabel && (
+            <div
+              className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs text-white/70"
+              style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)" }}
+              aria-label={`Activity: ${lastSeenLabel}`}
+            >
+              <Clock size={10} strokeWidth={2} aria-hidden />
+              {lastSeenLabel}
+            </div>
           )}
         </div>
 
-        {/* Last seen */}
-        {lastSeenLabel && (
-          <div
-            className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs text-white/70"
-            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)" }}
-            aria-label={`Activity: ${lastSeenLabel}`}
-          >
-            <Clock size={10} strokeWidth={2} aria-hidden />
-            {lastSeenLabel}
+        {/* Body */}
+        <div className="p-5">
+          {about && (
+            <p
+              className="text-sm leading-relaxed line-clamp-3 mb-4"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {about}
+            </p>
+          )}
+
+          {skills && skills.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-5" role="list" aria-label="Skills">
+              {skills.slice(0, 6).map((skill) => (
+                <span
+                  key={skill}
+                  role="listitem"
+                  className="px-2.5 py-0.5 rounded-full text-xs"
+                  style={{
+                    background: "var(--bg-elevated)",
+                    border:     "1px solid var(--border)",
+                    color:      "var(--text-secondary)",
+                  }}
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={onIgnored}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              style={{ border: "1px solid var(--border)", color: "var(--text-muted)" }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.background = "var(--error-bg)";
+                el.style.borderColor = "var(--error)";
+                el.style.color = "var(--error)";
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLElement;
+                el.style.background = "transparent";
+                el.style.borderColor = "var(--border)";
+                el.style.color = "var(--text-muted)";
+              }}
+              aria-label="Skip this profile"
+            >
+              <X size={14} strokeWidth={2} aria-hidden />
+              Skip
+            </button>
+            <button
+              onClick={onInterested}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-85"
+              style={{ background: "var(--brand)", color: "#fff" }}
+              aria-label="Connect with this developer"
+            >
+              <Zap size={14} strokeWidth={2} aria-hidden />
+              Connect
+            </button>
           </div>
-        )}
-      </div>
-
-      {/* Body */}
-      <div className="p-5">
-        {about && (
-          <p
-            className="text-sm leading-relaxed line-clamp-3 mb-4"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            {about}
-          </p>
-        )}
-
-        {skills && skills.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-5" role="list" aria-label="Skills">
-            {skills.slice(0, 6).map((skill) => (
-              <span
-                key={skill}
-                role="listitem"
-                className="px-2.5 py-0.5 rounded-full text-xs"
-                style={{
-                  background: "var(--bg-elevated)",
-                  border:     "1px solid var(--border)",
-                  color:      "var(--text-secondary)",
-                }}
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            onClick={onIgnored}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors"
-            style={{
-              border:  "1px solid var(--border)",
-              color:   "var(--text-muted)",
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLElement;
-              el.style.background = "var(--error-bg)";
-              el.style.borderColor = "var(--error)";
-              el.style.color = "var(--error)";
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLElement;
-              el.style.background = "transparent";
-              el.style.borderColor = "var(--border)";
-              el.style.color = "var(--text-muted)";
-            }}
-            aria-label="Skip this profile"
-          >
-            <X size={14} strokeWidth={2} aria-hidden />
-            Skip
-          </button>
-          <button
-            onClick={onInterested}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-opacity hover:opacity-85"
-            style={{ background: "var(--text-primary)", color: "var(--bg-base)" }}
-            aria-label="Connect with this developer"
-          >
-            <Zap size={14} strokeWidth={2} aria-hidden />
-            Connect
-          </button>
         </div>
-      </div>
-    </article>
+      </motion.article>
+
+      {/* Swipe hint */}
+      <p className="mt-3 text-xs" style={{ color: "var(--text-disabled)" }}>
+        ← Swipe left to skip · Swipe right to connect →
+      </p>
+    </div>
   );
 }
 
@@ -326,16 +380,13 @@ function MiniCard({ user, onClick }: { user: FeedUser; onClick: () => void }) {
     <button
       onClick={onClick}
       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors"
-      style={{
-        border:  "1px solid var(--border)",
-        background: "transparent",
-      }}
+      style={{ border: "1px solid var(--border)", background: "transparent" }}
       onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--bg-overlay)"; }}
       onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
     >
       <div className="w-9 h-9 rounded-full overflow-hidden shrink-0 relative">
         <Image
-          src={user.photoUrl || "https://www.gravatar.com/avatar?d=mp"}
+          src={avatarFor(user)}
           alt={user.firstName}
           fill
           className="object-cover"

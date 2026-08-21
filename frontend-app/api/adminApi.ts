@@ -1,8 +1,8 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 import type { AdminAnalytics, AdminUsersResponse, AdminUser } from "@/types";
 
-const base = `${BASE_URL}/api/admin`;
+const base = `${API_URL}/admin`;
 const opts = { withCredentials: true };
 
 export const getAdminAnalyticsApi = async (

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 import type { ChatMessage } from "@/types";
 
 interface RawMessage {
@@ -21,7 +21,7 @@ export const getChatMessagesApi = async (
   targetUserId: string
 ): Promise<ChatMessage[]> => {
   const res = await axios.get<ChatResponse>(
-    `${BASE_URL}/api/chat/${targetUserId}`,
+    `${API_URL}/chat/${targetUserId}`,
     { withCredentials: true }
   );
 

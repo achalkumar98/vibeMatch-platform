@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 import type { User, ApiResponse } from "@/types";
 
 export interface SignupPayload {
@@ -16,7 +16,7 @@ export interface SignupPayload {
  */
 export const signupApi = async (payload: SignupPayload): Promise<User> => {
   const res = await axios.post<ApiResponse<User>>(
-    `${BASE_URL}/api/signup`,
+    `${API_URL}/signup`,
     payload,
     { withCredentials: true }
   );
