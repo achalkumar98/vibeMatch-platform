@@ -1,7 +1,7 @@
 const express = require('express');
 const httpStatus = require('http-status');
 const { userAuth } = require('../../middlewares/auth');
-const { upload } = require('../../config/cloudinary');
+const { upload, uploadToCloudinary } = require('../../config/cloudinary');
 const catchAsync = require('../../utils/catchAsync');
 const ApiError = require('../../utils/ApiError');
 
@@ -58,9 +58,8 @@ router.post(
     if (!req.file) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'No file uploaded');
     }
-    // Cloudinary storage puts the secure URL at req.file.path
-    const photoUrl = req.file.path;
-    res.json({ message: 'Photo uploaded successfully', photoUrl });
+    const result = await uploadToCloudinary(req.file.buffer);
+    res.json({ message: 'Photo uploaded successfully', photoUrl: result.secure_url });
   })
 );
 
