@@ -81,21 +81,18 @@ export default function NavBar() {
         {/* ── Logo ─────────────────────────────────────────────────────── */}
         <Link
           href={user ? "/feed" : "/"}
-          className="flex items-center gap-1.5 shrink-0 hover:opacity-75 transition-opacity"
+          className="vm-navbar__logo"
           aria-label="VibeMatch home"
         >
-          <Zap
-            size={18}
-            className="text-brand-500"
-            strokeWidth={2.2}
-            aria-hidden
+          <Image
+            src="/assets/vibeMatch-logo.png"
+            alt="VibeMatch"
+            width={28}
+            height={28}
+            className="vm-navbar__logo-img"
+            priority
           />
-          <span
-            className="font-semibold tracking-tight"
-            style={{ fontSize: "15px", color: "var(--text-primary)" }}
-          >
-            VibeMatch
-          </span>
+          <span className="vm-navbar__logo-text">VibeMatch</span>
         </Link>
 
         {/* ── Desktop nav (authenticated) ──────────────────────────────── */}

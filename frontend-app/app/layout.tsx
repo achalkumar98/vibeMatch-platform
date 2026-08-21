@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Inter } from "next/font/google";
-import { Toaster } from "react-hot-toast";
 import StoreProvider from "@/redux/StoreProvider";
 import ThemeProvider from "@/components/ThemeProvider";
 import NavBar from "@/components/NavBar";
@@ -9,6 +8,7 @@ import Footer from "@/components/Footer";
 import HeartbeatProvider from "@/components/HeartbeatProvider";
 import ToastWrapper from "@/components/ToastWrapper";
 import "./globals.css";
+import "./responsive.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,7 +20,10 @@ export const metadata: Metadata = {
   title: "VibeMatch – Connect with Developers",
   description:
     "Swipe, connect and chat with developers around the world on VibeMatch.",
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon:  "/assets/vibeMatch-logo.png",
+    apple: "/assets/vibeMatch-logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -43,13 +46,8 @@ export default function RootLayout({
           <StoreProvider>
             <HeartbeatProvider />
             <NavBar />
-
-            {/*
-              ToastWrapper reads the current theme and renders react-hot-toast's
-              <Toaster> with matching styles. It must be inside ThemeProvider.
-            */}
+            {/* theme-aware react-hot-toast */}
             <ToastWrapper />
-
             <main className="flex-grow">{children}</main>
             <Footer />
           </StoreProvider>
