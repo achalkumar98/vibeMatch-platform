@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -56,7 +56,7 @@ const VM_FEATURES = [
   },
 ];
 
-export default function LoginPage() {
+function LoginForm() {
   const [emailId,      setEmailId]      = useState("");
   const [password,     setPassword]     = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -96,6 +96,7 @@ export default function LoginPage() {
       className="min-h-screen flex"
       style={{ background: "var(--bg-base)", paddingTop: "60px" }}
     >
+
       {/* ── Left panel — VibeMatch content ──────────────────────────────── */}
       <aside
         className="hidden lg:flex flex-col justify-between w-[46%] px-12 py-14 flex-shrink-0 overflow-hidden relative"
@@ -358,5 +359,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
