@@ -21,7 +21,15 @@ if (config.env !== 'test') {
 
 app.use(
   cors({
-    origin: config.clientOrigin,
+    origin: (origin, callback) => {
+      const allowed = (config.clientOrigin || '')
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean);
+      // allow requests with no origin (mobile apps, curl, Render health checks)
+      if (!origin || allowed.includes(origin)) return callback(null, true);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
     credentials: true,
   })
 );
