@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
-import { Eye, EyeOff, Github, Loader2, Zap, ArrowRight } from "lucide-react";
+import {
+  Eye, EyeOff, Github, Loader2, ArrowRight,
+  Zap, MessageSquare, Users, Shield,
+} from "lucide-react";
 import { useAppDispatch } from "@/redux/hooks";
 import { addUser } from "@/redux/slices/userSlice";
 import { loginApi } from "@/api/loginApi";
 import { BASE_URL } from "@/utils/constants";
 
-/* Google colour icon as inline SVG (brand requirement) */
 function GoogleIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
@@ -22,10 +25,35 @@ function GoogleIcon() {
   );
 }
 
-const DEMO_PROFILES = [
-  { name: "Achal Kumar",  role: "Full-Stack Developer", status: "Premium" },
-  { name: "Priya Sharma", role: "React Engineer",       status: "Online" },
-  { name: "Rahul Verma",  role: "Node.js Expert",       status: "New" },
+const VM_FEATURES = [
+  {
+    Icon: Zap,
+    label: "Swipe to Connect",
+    desc:  "Discover developers by swiping through intelligent feed cards.",
+    color: "#f59e0b",
+    badge: { text: "Infinite Scroll", cls: "vm-snake-badge--amber" },
+  },
+  {
+    Icon: MessageSquare,
+    label: "Real-time Chat",
+    desc:  "1:1 Socket.IO messaging with online presence & last-seen.",
+    color: "#6366f1",
+    badge: { text: "Live", cls: "vm-snake-badge--purple" },
+  },
+  {
+    Icon: Users,
+    label: "Connection Network",
+    desc:  "Build your developer network with accepted connections.",
+    color: "#22c55e",
+    badge: { text: "New", cls: "vm-snake-badge--green" },
+  },
+  {
+    Icon: Shield,
+    label: "Premium Plans",
+    desc:  "Silver, Gold, Diamond — unlock priority placement & more.",
+    color: "#8b5cf6",
+    badge: { text: "Hot", cls: "vm-snake-badge--pink" },
+  },
 ];
 
 export default function LoginPage() {
@@ -66,87 +94,151 @@ export default function LoginPage() {
   return (
     <div
       className="min-h-screen flex"
-      style={{ background: "var(--bg-base)", paddingTop: "56px" }}
+      style={{ background: "var(--bg-base)", paddingTop: "60px" }}
     >
-      {/* ── Left decorative panel ───────────────────────────────────────── */}
+      {/* ── Left panel — VibeMatch content ──────────────────────────────── */}
       <aside
-        className="hidden lg:flex flex-col justify-between w-[44%] p-12 shrink-0"
+        className="hidden lg:flex flex-col justify-between w-[46%] px-12 py-14 flex-shrink-0 overflow-hidden relative"
         style={{ borderRight: "1px solid var(--border)" }}
-        aria-hidden
       >
-        <div className="flex items-center gap-2">
-          <Zap size={16} className="text-brand-500" strokeWidth={2.2} />
-          <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>VibeMatch</span>
-        </div>
+        {/* Radial glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 80% 60% at 20% 50%, var(--brand-subtle) 0%, transparent 70%)",
+          }}
+          aria-hidden
+        />
 
-        {/* Stacked profile cards */}
-        <div className="flex flex-col gap-3">
-          <p
-            className="text-xs font-semibold uppercase tracking-widest mb-2"
-            style={{ color: "var(--text-muted)" }}
-          >
-            Active developers
-          </p>
-          {DEMO_PROFILES.map((p, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl"
-              style={{
-                background: "var(--bg-overlay)",
-                border:     "1px solid var(--border)",
-                transform:  `translateX(${i * 10}px)`,
-                opacity:    1 - i * 0.22,
-              }}
+        {/* Logo + brand */}
+        <div className="relative z-10 flex items-center gap-3 vm-animate-fade-in">
+          <Image
+            src="/assets/vibeMatch-logo.png"
+            alt="VibeMatch"
+            width={40}
+            height={40}
+            className="vm-logo-img rounded-xl"
+            style={{ width: 40, height: 40 }}
+          />
+          <div>
+            <p
+              className="font-bold tracking-tight"
+              style={{ fontSize: "17px", letterSpacing: "-0.03em", color: "var(--text-primary)" }}
             >
-              <div
-                className="w-8 h-8 rounded-full shrink-0"
-                style={{ background: "var(--bg-elevated)" }}
-              />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
-                  {p.name}
-                </div>
-                <div className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
-                  {p.role}
-                </div>
-              </div>
-              <span
-                className="vm-badge vm-badge-brand shrink-0"
-              >
-                {p.status}
-              </span>
-            </div>
-          ))}
+              VibeMatch
+            </p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              Developer networking
+            </p>
+          </div>
         </div>
 
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          Thousands of developers already connected.
+        {/* Feature list */}
+        <div className="relative z-10 flex flex-col gap-5">
+          <div className="mb-2 vm-animate-fade-up">
+            <div className="vm-snake-badge mb-4" aria-label="Live platform">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" aria-hidden />
+              Platform live — v2.0
+            </div>
+            <h2
+              className="font-bold tracking-tight leading-[1.1]"
+              style={{ fontSize: "clamp(1.5rem, 2.5vw, 2rem)", color: "var(--text-primary)" }}
+            >
+              Where developers
+              <br />
+              <span className="vm-gradient-text">find their vibe.</span>
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
+              Swipe. Connect. Build — with developers who share your stack.
+            </p>
+          </div>
+
+          <ul className="flex flex-col gap-3.5">
+            {VM_FEATURES.map(({ Icon, label, desc, color, badge }, i) => (
+              <li
+                key={label}
+                className={`flex items-start gap-3 vm-animate-fade-up vm-delay-${(i + 1) * 100}`}
+              >
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                  style={{ background: `${color}1a`, border: `1px solid ${color}30` }}
+                  aria-hidden
+                >
+                  <Icon size={15} style={{ color }} strokeWidth={1.8} />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span
+                      className="text-sm font-semibold"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {label}
+                    </span>
+                    <span className={`vm-snake-badge ${badge.cls} text-2xs`} style={{ fontSize: "9px", padding: "1px 7px" }}>
+                      {badge.text}
+                    </span>
+                  </div>
+                  <p className="text-xs mt-0.5 leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                    {desc}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <p
+          className="relative z-10 text-xs vm-animate-fade-in vm-delay-600"
+          style={{ color: "var(--text-disabled)" }}
+        >
+          Free to join · No credit card required
         </p>
       </aside>
 
       {/* ── Form panel ──────────────────────────────────────────────────── */}
       <div className="flex-1 flex items-center justify-center px-5 py-12">
-        <div className="w-full max-w-[340px]">
+        <div className="w-full max-w-[340px] vm-animate-scale-up">
 
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-1.5 mb-8">
-            <Zap size={16} className="text-brand-500" strokeWidth={2.2} aria-hidden />
-            <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>VibeMatch</span>
+          <div className="lg:hidden flex items-center gap-2.5 mb-8">
+            <Image
+              src="/assets/vibeMatch-logo.png"
+              alt="VibeMatch"
+              width={32}
+              height={32}
+              className="vm-logo-img rounded-lg"
+              style={{ width: 32, height: 32 }}
+            />
+            <span
+              className="font-bold"
+              style={{ fontSize: "15px", letterSpacing: "-0.02em", color: "var(--text-primary)" }}
+            >
+              VibeMatch
+            </span>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ color: "var(--text-primary)" }}>
+          {/* Page badge */}
+          <div className="vm-snake-badge--cyan vm-snake-badge mb-5" style={{ fontSize: "10px" }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" aria-hidden />
+            Secure sign-in
+          </div>
+
+          <h1
+            className="font-bold tracking-tight mb-1"
+            style={{ fontSize: "1.55rem", letterSpacing: "-0.03em", color: "var(--text-primary)" }}
+          >
             Welcome back
           </h1>
-          <p className="text-sm mb-8" style={{ color: "var(--text-muted)" }}>
-            Sign in to your account to continue
+          <p className="text-sm mb-7" style={{ color: "var(--text-muted)" }}>
+            Sign in to continue to your developer network
           </p>
 
-          {/* OAuth buttons */}
+          {/* OAuth */}
           <div className="flex flex-col gap-2.5 mb-6">
             <button
               type="button"
               onClick={() => handleOAuth("github")}
-              className="vm-btn vm-btn-ghost w-full py-2.5"
+              className="vm-btn vm-btn-ghost w-full py-2.5 text-sm"
               aria-label="Continue with GitHub"
             >
               <Github size={15} strokeWidth={1.8} aria-hidden />
@@ -155,7 +247,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => handleOAuth("google")}
-              className="vm-btn vm-btn-ghost w-full py-2.5"
+              className="vm-btn vm-btn-ghost w-full py-2.5 text-sm"
               aria-label="Continue with Google"
             >
               <GoogleIcon />
@@ -163,21 +255,16 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* Divider */}
           <div className="flex items-center gap-3 mb-6">
             <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
             <span className="text-xs" style={{ color: "var(--text-disabled)" }}>or</span>
             <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
           </div>
 
-          {/* Email / password form */}
+          {/* Form */}
           <form onSubmit={handleLogin} className="flex flex-col gap-3.5">
             <div>
-              <label
-                htmlFor="email"
-                className="block text-xs font-medium mb-1.5"
-                style={{ color: "var(--text-secondary)" }}
-              >
+              <label htmlFor="email" className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
                 Email address
               </label>
               <input
@@ -194,11 +281,7 @@ export default function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label
-                  htmlFor="password"
-                  className="text-xs font-medium"
-                  style={{ color: "var(--text-secondary)" }}
-                >
+                <label htmlFor="password" className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
                   Password
                 </label>
                 <Link
@@ -232,8 +315,7 @@ export default function LoginPage() {
                 >
                   {showPassword
                     ? <EyeOff size={15} strokeWidth={1.8} aria-hidden />
-                    : <Eye    size={15} strokeWidth={1.8} aria-hidden />
-                  }
+                    : <Eye    size={15} strokeWidth={1.8} aria-hidden />}
                 </button>
               </div>
             </div>
@@ -241,11 +323,7 @@ export default function LoginPage() {
             {error && (
               <p
                 className="text-sm px-3 py-2 rounded-lg"
-                style={{
-                  color:      "var(--error)",
-                  background: "var(--error-bg)",
-                  border:     "1px solid var(--error)",
-                }}
+                style={{ color: "var(--error)", background: "var(--error-bg)", border: "1px solid var(--error)" }}
                 role="alert"
               >
                 {error}
@@ -255,18 +333,12 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="vm-btn vm-btn-solid w-full py-2.5 mt-1"
+              className="vm-btn vm-btn-solid w-full py-2.5 mt-1 vm-btn-glow"
             >
               {loading ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" aria-hidden />
-                  Signing in…
-                </>
+                <><Loader2 size={14} className="animate-spin" aria-hidden /> Signing in…</>
               ) : (
-                <>
-                  Sign in
-                  <ArrowRight size={14} strokeWidth={2} aria-hidden />
-                </>
+                <>Sign in <ArrowRight size={14} strokeWidth={2} aria-hidden /></>
               )}
             </button>
           </form>
@@ -275,12 +347,12 @@ export default function LoginPage() {
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="font-medium transition-colors"
-              style={{ color: "var(--text-primary)" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--brand)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }}
+              className="font-semibold transition-colors"
+              style={{ color: "var(--brand)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--brand-hover)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--brand)"; }}
             >
-              Sign up
+              Sign up free
             </Link>
           </p>
         </div>

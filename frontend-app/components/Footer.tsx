@@ -6,36 +6,65 @@ import { Github, Linkedin, Instagram } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="vm-footer">
-      <div className="vm-footer__inner">
+    <footer
+      className="w-full py-8 px-5 sm:px-6"
+      style={{ borderTop: "1px solid var(--border)" }}
+    >
+      <div
+        className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5"
+      >
         {/* ── Brand ─────────────────────────────────────────────────────── */}
-        <div className="vm-footer__brand">
+        <div className="flex items-center gap-2.5">
           <Image
             src="/assets/vibeMatch-logo.png"
             alt="VibeMatch logo"
-            width={24}
-            height={24}
-            className="vm-footer__logo-img"
+            width={32}
+            height={32}
+            className="vm-logo-img vm-logo-img--footer rounded-lg flex-shrink-0"
           />
-          <span className="vm-footer__brand-name">VibeMatch</span>
-          <span className="vm-footer__dot" aria-hidden>·</span>
-          <span className="vm-footer__copy">
+          <span
+            className="font-bold tracking-tight"
+            style={{ fontSize: "15px", letterSpacing: "-0.02em", color: "var(--text-primary)" }}
+          >
+            VibeMatch
+          </span>
+          <span style={{ color: "var(--border-strong)" }} className="text-sm hidden sm:block">·</span>
+          <span className="text-xs hidden sm:block" style={{ color: "var(--text-muted)" }}>
             © {new Date().getFullYear()} All rights reserved
           </span>
         </div>
 
         {/* ── Nav + Socials ─────────────────────────────────────────────── */}
-        <nav className="vm-footer__nav" aria-label="Footer navigation">
-          <Link href="/feed"    className="vm-footer__link">Feed</Link>
-          <Link href="/premium" className="vm-footer__link">Premium</Link>
+        <nav className="flex items-center gap-5" aria-label="Footer navigation">
+          <Link
+            href="/feed"
+            className="text-xs font-medium transition-colors"
+            style={{ color: "var(--text-muted)" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}
+          >
+            Feed
+          </Link>
+          <Link
+            href="/premium"
+            className="text-xs font-medium transition-colors"
+            style={{ color: "var(--text-muted)" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}
+          >
+            Premium
+          </Link>
 
-          <div className="vm-footer__socials">
+          <div className="flex items-center gap-3.5">
             <a
               href="https://github.com/achalkumar98"
               target="_blank"
               rel="noopener noreferrer"
-              className="vm-footer__social-icon"
-              aria-label="GitHub profile"
+              aria-label="GitHub"
+              className="transition-colors"
+              style={{ color: "var(--text-muted)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}
             >
               <Github size={16} strokeWidth={1.8} aria-hidden />
             </a>
@@ -43,8 +72,11 @@ export default function Footer() {
               href="https://www.linkedin.com/in/achalkumar1998"
               target="_blank"
               rel="noopener noreferrer"
-              className="vm-footer__social-icon vm-footer__social-icon--linkedin"
-              aria-label="LinkedIn profile"
+              aria-label="LinkedIn"
+              className="transition-colors"
+              style={{ color: "var(--text-muted)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#0a66c2"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}
             >
               <Linkedin size={16} strokeWidth={1.8} aria-hidden />
             </a>
@@ -52,8 +84,11 @@ export default function Footer() {
               href="https://www.instagram.com/achal.pand98"
               target="_blank"
               rel="noopener noreferrer"
-              className="vm-footer__social-icon vm-footer__social-icon--instagram"
-              aria-label="Instagram profile"
+              aria-label="Instagram"
+              className="transition-colors"
+              style={{ color: "var(--text-muted)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#e1306c"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}
             >
               <Instagram size={16} strokeWidth={1.8} aria-hidden />
             </a>

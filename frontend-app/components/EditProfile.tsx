@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { Upload, Loader2, X, AlertCircle, User } from "lucide-react";
+import { Upload, Loader2, X, AlertCircle, User, Camera } from "lucide-react";
 import { useAppDispatch } from "@/redux/hooks";
 import { addUser } from "@/redux/slices/userSlice";
 import { editProfileApi } from "@/api/profileApi";
@@ -26,6 +26,10 @@ export default function EditProfile({ user }: EditProfileProps) {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch     = useAppDispatch();
+
+  /* Generate deterministic avatar fallback (DiceBear) */
+  const avatarSrc = photoUrl ||
+    `https://api.dicebear.com/8.x/avataaars/svg?seed=${encodeURIComponent(user.firstName + user.lastName)}`;
 
   const processFile = useCallback(async (file: File) => {
     if (!file.type.startsWith("image/")) { toast.error("Only image files are allowed."); return; }
@@ -59,9 +63,13 @@ export default function EditProfile({ user }: EditProfileProps) {
     const skills = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
     const id = toast.loading("Saving profile…");
     try {
-      const updated = await editProfileApi({ firstName, lastName, photoUrl: photoUrl || undefined, age: Number(age), gender, about, skills });
+      const updated = await editProfileApi({
+        firstName, lastName,
+        photoUrl: photoUrl || undefined,
+        age: Number(age), gender, about, skills,
+      });
       dispatch(addUser(updated));
-      toast.success("Profile saved successfully!", { id });
+      toast.success("Profile saved!", { id });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       setError(msg);
@@ -69,44 +77,73 @@ export default function EditProfile({ user }: EditProfileProps) {
     }
   };
 
-  const previewUrl = photoUrl || "https://www.gravatar.com/avatar?d=mp";
-  const skillTags  = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
+  const skillTags = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-base)", paddingTop: "56px" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg-base)" }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
 
-        {/* Page title */}
-        <div className="flex items-center gap-2.5 mb-8">
-          <User size={20} style={{ color: "var(--brand)" }} strokeWidth={1.8} aria-hidden />
-          <h1 className="page-title">Edit Profile</h1>
+        {/* ── Page header ───────────────────────────────────────────────── */}
+        <div className="flex items-center gap-3 mb-8 vm-animate-fade-up">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ background: "var(--brand-subtle)", color: "var(--brand)" }}
+            aria-hidden
+          >
+            <User size={17} strokeWidth={1.8} />
+          </div>
+          <div>
+            <h1 className="page-title">Edit Profile</h1>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+              Update your developer profile
+            </p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          {/* ── Photo column ─────────────────────────────────────────────── */}
-          <div className="flex flex-col items-center gap-4">
+          {/* ── Photo column — avatar only ────────────────────────────── */}
+          <div className="flex flex-col items-center gap-5 vm-animate-fade-up vm-delay-100">
 
-            {/* Avatar */}
-            <div
-              className="relative w-32 h-32 rounded-full overflow-hidden"
-              style={{ border: "2px solid var(--border-strong)" }}
-            >
-              <Image
-                src={previewUrl}
-                alt="Your profile photo"
-                fill
-                className="object-cover"
-                sizes="128px"
-              />
-              {uploading && (
-                <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.55)" }}>
-                  <Loader2 size={24} className="animate-spin text-white" aria-label="Uploading…" />
-                </div>
-              )}
+            {/* Avatar with camera overlay */}
+            <div className="relative group">
+              <div
+                className="w-36 h-36 rounded-full overflow-hidden"
+                style={{ border: "3px solid var(--border-strong)" }}
+              >
+                <Image
+                  src={avatarSrc}
+                  alt="Your profile photo"
+                  fill={false}
+                  width={144}
+                  height={144}
+                  className="w-full h-full object-cover"
+                  sizes="144px"
+                />
+                {uploading && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-full" style={{ background: "rgba(0,0,0,0.55)" }}>
+                    <Loader2 size={28} className="animate-spin text-white" aria-label="Uploading…" />
+                  </div>
+                )}
+              </div>
+
+              {/* Camera button overlay */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-1 right-1 w-9 h-9 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95"
+                style={{
+                  background: "var(--brand)",
+                  border:     "2px solid var(--bg-base)",
+                  color:      "#fff",
+                }}
+                aria-label="Upload new profile photo"
+              >
+                <Camera size={14} strokeWidth={2} aria-hidden />
+              </button>
             </div>
 
-            {/* Drop zone */}
+            {/* Drag-and-drop zone */}
             <div
               role="button"
               tabIndex={0}
@@ -115,67 +152,59 @@ export default function EditProfile({ user }: EditProfileProps) {
               onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
-              className="w-full rounded-xl p-4 text-center cursor-pointer transition-colors"
+              className="w-full rounded-2xl p-5 text-center cursor-pointer transition-all"
               style={{
                 border:     `2px dashed ${dragOver ? "var(--brand)" : "var(--border-strong)"}`,
-                background: dragOver ? "var(--brand-subtle)" : "transparent",
+                background: dragOver ? "var(--brand-subtle)" : "var(--bg-overlay)",
               }}
-              aria-label="Upload profile photo — drag and drop or click"
+              aria-label="Drag and drop or click to upload a photo"
             >
               <Upload
-                size={18}
-                className="mx-auto mb-2"
+                size={20}
+                className="mx-auto mb-2.5"
                 style={{ color: dragOver ? "var(--brand)" : "var(--text-muted)" }}
                 aria-hidden
               />
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              <p className="text-xs font-medium" style={{ color: dragOver ? "var(--brand)" : "var(--text-secondary)" }}>
                 {uploading ? "Uploading…" : "Drag & drop or click to upload"}
               </p>
               <p className="text-2xs mt-1" style={{ color: "var(--text-disabled)" }}>
                 JPG · PNG · WebP · max 5 MB
               </p>
             </div>
+
+            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
               className="hidden"
               onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }}
-              aria-label="File upload"
+              aria-label="Upload photo"
             />
 
-            {/* URL fallback */}
-            <div className="w-full">
-              <label
-                className="text-xs font-medium block mb-1.5"
-                style={{ color: "var(--text-muted)" }}
-              >
-                Or paste image URL
-              </label>
-              <input
-                type="url"
-                className="vm-input text-sm"
-                placeholder="https://…"
-                value={photoUrl}
-                onChange={(e) => setPhotoUrl(e.target.value)}
-              />
-            </div>
-
-            {/* Clear photo */}
+            {/* Remove photo */}
             {photoUrl && (
               <button
                 type="button"
                 onClick={() => setPhotoUrl("")}
-                className="vm-btn vm-btn-ghost text-xs px-3 py-1.5 w-full"
+                className="vm-btn vm-btn-ghost text-xs px-4 py-1.5 w-full"
               >
                 <X size={12} strokeWidth={2} aria-hidden />
-                Clear photo
+                Remove photo
               </button>
+            )}
+
+            {/* Avatar hint */}
+            {!photoUrl && (
+              <p className="text-2xs text-center" style={{ color: "var(--text-disabled)" }}>
+                Auto-avatar generated from your name until you upload a photo.
+              </p>
             )}
           </div>
 
-          {/* ── Form column ──────────────────────────────────────────────── */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
+          {/* ── Form ──────────────────────────────────────────────────── */}
+          <div className="lg:col-span-2 flex flex-col gap-4 vm-animate-fade-up vm-delay-200">
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -220,7 +249,7 @@ export default function EditProfile({ user }: EditProfileProps) {
                 id="ep-about"
                 className="vm-input resize-none"
                 rows={4}
-                placeholder="Tell other developers about yourself…"
+                placeholder="Tell other developers about yourself, your stack, and what you're building…"
                 value={about}
                 onChange={(e) => setAbout(e.target.value)}
               />
@@ -229,26 +258,20 @@ export default function EditProfile({ user }: EditProfileProps) {
             <div>
               <label htmlFor="ep-skills" className="text-xs font-medium block mb-1.5" style={{ color: "var(--text-secondary)" }}>
                 Skills{" "}
-                <span className="font-normal" style={{ color: "var(--text-disabled)" }}>
-                  (comma-separated)
-                </span>
+                <span className="font-normal" style={{ color: "var(--text-disabled)" }}>(comma-separated)</span>
               </label>
               <input
                 id="ep-skills"
                 type="text"
                 className="vm-input"
-                placeholder="React, Node.js, TypeScript…"
+                placeholder="React, Node.js, TypeScript, MongoDB…"
                 value={skillsInput}
                 onChange={(e) => setSkillsInput(e.target.value)}
               />
               {skillTags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2" role="list" aria-label="Skill tags">
+                <div className="flex flex-wrap gap-1.5 mt-2.5" role="list" aria-label="Skill tags">
                   {skillTags.map((s) => (
-                    <span
-                      key={s}
-                      role="listitem"
-                      className="vm-badge vm-badge-muted"
-                    >
+                    <span key={s} role="listitem" className="vm-badge vm-badge-muted text-xs">
                       {s}
                     </span>
                   ))}

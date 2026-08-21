@@ -19,13 +19,12 @@ import {
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { removeUser } from "@/redux/slices/userSlice";
 import { logoutApi } from "@/api/profileApi";
-import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
-  { href: "/feed",        label: "Feed",        Icon: Zap },
-  { href: "/connections", label: "Connections", Icon: Users },
+  { href: "/feed",        label: "Feed",        Icon: Zap      },
+  { href: "/connections", label: "Connections", Icon: Users    },
   { href: "/requests",    label: "Requests",    Icon: UserPlus },
-  { href: "/premium",     label: "Premium",     Icon: Star },
+  { href: "/premium",     label: "Premium",     Icon: Star     },
 ];
 
 export default function NavBar() {
@@ -38,7 +37,6 @@ export default function NavBar() {
   const [menuOpen,     setMenuOpen]     = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  /* Close dropdown on outside click */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
@@ -48,7 +46,6 @@ export default function NavBar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  /* Close everything on route change */
   useEffect(() => {
     setMenuOpen(false);
     setDropdownOpen(false);
@@ -68,12 +65,13 @@ export default function NavBar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 h-14"
+      className="fixed top-0 left-0 right-0 z-50"
       style={{
-        background:             "var(--nav-bg)",
-        borderBottom:           "1px solid var(--border)",
-        backdropFilter:         "blur(18px)",
-        WebkitBackdropFilter:   "blur(18px)",
+        height:                  "60px",
+        background:              "var(--nav-bg)",
+        borderBottom:            "1px solid var(--border)",
+        backdropFilter:          "blur(20px)",
+        WebkitBackdropFilter:    "blur(20px)",
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-4">
@@ -81,31 +79,37 @@ export default function NavBar() {
         {/* ── Logo ─────────────────────────────────────────────────────── */}
         <Link
           href={user ? "/feed" : "/"}
-          className="vm-navbar__logo"
+          className="flex items-center gap-2.5 flex-shrink-0 hover:opacity-80 transition-opacity"
           aria-label="VibeMatch home"
         >
           <Image
             src="/assets/vibeMatch-logo.png"
             alt="VibeMatch"
-            width={28}
-            height={28}
-            className="vm-navbar__logo-img"
+            width={36}
+            height={36}
+            className="vm-logo-img vm-logo-img--nav rounded-lg"
             priority
           />
-          <span className="vm-navbar__logo-text">VibeMatch</span>
+          <span
+            className="font-bold tracking-tight hidden sm:block"
+            style={{ fontSize: "16px", letterSpacing: "-0.03em", color: "var(--text-primary)" }}
+          >
+            VibeMatch
+          </span>
         </Link>
 
-        {/* ── Desktop nav (authenticated) ──────────────────────────────── */}
+        {/* ── Desktop nav ──────────────────────────────────────────────── */}
         {user && (
           <div className="hidden md:flex items-center gap-0.5 flex-1 justify-center">
             {NAV_LINKS.map(({ href, label, Icon }) => (
               <Link
                 key={href}
                 href={href}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150"
                 style={{
                   background: isActive(href) ? "var(--bg-overlay)" : "transparent",
                   color:      isActive(href) ? "var(--text-primary)" : "var(--text-secondary)",
+                  borderBottom: isActive(href) ? `2px solid var(--brand)` : "2px solid transparent",
                 }}
                 aria-current={isActive(href) ? "page" : undefined}
               >
@@ -116,12 +120,12 @@ export default function NavBar() {
             {user.isAdmin && (
               <Link
                 href="/admin"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150"
                 style={{
-                  background: pathname.startsWith("/admin") ? "var(--bg-overlay)" : "transparent",
-                  color:      pathname.startsWith("/admin") ? "var(--text-primary)" : "var(--text-secondary)",
+                  background:   pathname.startsWith("/admin") ? "var(--bg-overlay)" : "transparent",
+                  color:        pathname.startsWith("/admin") ? "var(--text-primary)" : "var(--text-secondary)",
+                  borderBottom: pathname.startsWith("/admin") ? `2px solid var(--brand)` : "2px solid transparent",
                 }}
-                aria-current={pathname.startsWith("/admin") ? "page" : undefined}
               >
                 <LayoutDashboard size={14} strokeWidth={1.8} aria-hidden />
                 Admin
@@ -130,32 +134,28 @@ export default function NavBar() {
           </div>
         )}
 
-        {/* ── Right side ───────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Theme toggle — always visible */}
-          <ThemeToggle />
-
+        {/* ── Right ────────────────────────────────────────────────────── */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           {user ? (
             <>
-              {/* Avatar dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen((p) => !p)}
-                  className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2"
-                  style={{ "--tw-ring-color": "var(--brand)" } as React.CSSProperties}
+                  className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   aria-label="User menu"
                   aria-expanded={dropdownOpen}
                 >
+                  {/* Avatar */}
                   <div
-                    className="w-8 h-8 rounded-full overflow-hidden shrink-0"
-                    style={{ border: "1.5px solid var(--border-strong)" }}
+                    className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0"
+                    style={{ border: "2px solid var(--border-strong)" }}
                   >
                     <Image
-                      src={user.photoUrl || "https://www.gravatar.com/avatar?d=mp"}
-                      alt="Your avatar"
-                      width={32}
-                      height={32}
-                      className="w-full h-full object-cover"
+                      src={user.photoUrl || "https://api.dicebear.com/8.x/avataaars/svg?seed=" + encodeURIComponent(user.firstName)}
+                      alt={`${user.firstName}'s avatar`}
+                      fill
+                      className="object-cover"
+                      sizes="36px"
                     />
                   </div>
                   <span
@@ -166,7 +166,7 @@ export default function NavBar() {
                   </span>
                   <ChevronDown
                     size={13}
-                    strokeWidth={2}
+                    strokeWidth={2.2}
                     className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
                     style={{ color: "var(--text-muted)" }}
                     aria-hidden
@@ -176,30 +176,47 @@ export default function NavBar() {
                 {/* Dropdown panel */}
                 {dropdownOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-52 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in"
+                    className="absolute right-0 mt-2.5 w-52 rounded-2xl overflow-hidden shadow-2xl z-50"
                     style={{
-                      background: "var(--bg-surface)",
-                      border:     "1px solid var(--border)",
+                      background:    "var(--bg-surface)",
+                      border:        "1px solid var(--border)",
+                      animation:     "vm-fade-up 0.18s cubic-bezier(0.22,1,0.36,1) both",
                     }}
                   >
-                    {/* Header */}
+                    {/* User info header */}
                     <div
-                      className="px-4 py-3"
+                      className="px-4 py-3 flex items-center gap-3"
                       style={{ borderBottom: "1px solid var(--border)" }}
                     >
-                      <p className="text-2xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
-                        Signed in as
-                      </p>
-                      <p className="text-sm font-semibold truncate mt-0.5" style={{ color: "var(--text-primary)" }}>
-                        {user.firstName} {user.lastName}
-                      </p>
+                      <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                        <Image
+                          src={user.photoUrl || "https://api.dicebear.com/8.x/avataaars/svg?seed=" + encodeURIComponent(user.firstName)}
+                          alt="avatar"
+                          fill
+                          className="object-cover"
+                          sizes="32px"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p
+                          className="text-xs font-semibold truncate"
+                          style={{ color: "var(--text-primary)" }}
+                        >
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p
+                          className="text-2xs truncate"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {user.emailId}
+                        </p>
+                      </div>
                     </div>
 
-                    {/* Links */}
                     <div className="py-1">
                       {[
-                        { href: "/profile",  label: "Profile",           Icon: User },
-                        { href: "/premium",  label: "Premium",           Icon: Star },
+                        { href: "/profile", label: "Profile",          Icon: User          },
+                        { href: "/premium", label: "Premium",          Icon: Star          },
                         ...(user.isAdmin
                           ? [{ href: "/admin", label: "Admin Dashboard", Icon: LayoutDashboard }]
                           : []),
@@ -211,12 +228,14 @@ export default function NavBar() {
                           className="flex items-center gap-2.5 px-4 py-2 text-sm transition-colors"
                           style={{ color: "var(--text-secondary)" }}
                           onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLElement).style.background = "var(--bg-overlay)";
-                            (e.currentTarget as HTMLElement).style.color = "var(--text-primary)";
+                            const el = e.currentTarget as HTMLElement;
+                            el.style.background = "var(--bg-overlay)";
+                            el.style.color = "var(--text-primary)";
                           }}
                           onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLElement).style.background = "transparent";
-                            (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                            const el = e.currentTarget as HTMLElement;
+                            el.style.background = "transparent";
+                            el.style.color = "var(--text-secondary)";
                           }}
                         >
                           <Ic size={14} strokeWidth={1.8} aria-hidden />
@@ -229,12 +248,8 @@ export default function NavBar() {
                           onClick={handleLogout}
                           className="flex items-center gap-2.5 w-full px-4 py-2 text-sm transition-colors"
                           style={{ color: "var(--error)" }}
-                          onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLElement).style.background = "var(--error-bg)";
-                          }}
-                          onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLElement).style.background = "transparent";
-                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--error-bg)"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                         >
                           <LogOut size={14} strokeWidth={1.8} aria-hidden />
                           Sign out
@@ -253,7 +268,7 @@ export default function NavBar() {
                 aria-expanded={menuOpen}
               >
                 {menuOpen
-                  ? <X size={16} strokeWidth={2} aria-hidden />
+                  ? <X    size={16} strokeWidth={2} aria-hidden />
                   : <Menu size={16} strokeWidth={2} aria-hidden />
                 }
               </button>
@@ -280,11 +295,11 @@ export default function NavBar() {
       {/* ── Mobile slide-down menu ────────────────────────────────────────── */}
       {user && menuOpen && (
         <div
-          className="md:hidden px-4 pb-4 pt-2 flex flex-col gap-1 animate-slide-up"
+          className="md:hidden px-4 pb-4 pt-2 flex flex-col gap-1"
           style={{
-            background:  "var(--bg-surface)",
-            borderTop:   "1px solid var(--border)",
+            background:   "var(--bg-surface)",
             borderBottom: "1px solid var(--border)",
+            animation:    "vm-fade-up 0.2s cubic-bezier(0.22,1,0.36,1) both",
           }}
         >
           {NAV_LINKS.map(({ href, label, Icon }) => (
@@ -314,7 +329,7 @@ export default function NavBar() {
           <div style={{ borderTop: "1px solid var(--border)" }} className="mt-1 pt-1">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium"
               style={{ color: "var(--error)" }}
             >
               <LogOut size={15} strokeWidth={1.8} aria-hidden />

@@ -17,7 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "VibeMatch – Connect with Developers",
+  title: "VibeMatch – Swipe Into Your Next Dev Circle",
   description:
     "Swipe, connect and chat with developers around the world on VibeMatch.",
   icons: {
