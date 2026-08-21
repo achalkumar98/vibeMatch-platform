@@ -7,6 +7,7 @@ import Image from "next/image";
 import {
   Zap,
   Users,
+  MessageSquare,
   UserPlus,
   Star,
   LayoutDashboard,
@@ -21,17 +22,46 @@ import { removeUser } from "@/redux/slices/userSlice";
 import { logoutApi } from "@/api/profileApi";
 
 const NAV_LINKS = [
-  { href: "/feed",        label: "Feed",        Icon: Zap      },
-  { href: "/connections", label: "Connections", Icon: Users    },
-  { href: "/requests",    label: "Requests",    Icon: UserPlus },
-  { href: "/premium",     label: "Premium",     Icon: Star     },
+  { href: "/feed",        label: "Feed",        Icon: Zap            },
+  { href: "/connections", label: "Connections", Icon: Users          },
+  { href: "/chat",        label: "Chat",        Icon: MessageSquare  },
+  { href: "/requests",    label: "Requests",    Icon: UserPlus       },
+  { href: "/premium",     label: "Premium",     Icon: Star           },
 ];
 
+/* ── Badge pill ─────────────────────────────────────────────────────────── */
+function CountBadge({ count, type }: { count: number; type: "connections" | "requests" }) {
+  if (count === 0) return null;
+  const bg    = type === "requests"    ? "#f59e0b" : "#6366f1";
+  const color = "#fff";
+  return (
+    <span
+      className="inline-flex items-center justify-center rounded-full text-[10px] font-bold leading-none"
+      style={{
+        background: bg,
+        color,
+        minWidth:   "16px",
+        height:     "16px",
+        padding:    "0 4px",
+        marginLeft: "4px",
+      }}
+      aria-label={`${count} ${type}`}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 export default function NavBar() {
-  const user       = useAppSelector((s) => s.user);
-  const dispatch   = useAppDispatch();
-  const router     = useRouter();
-  const pathname   = usePathname();
+  const user        = useAppSelector((s) => s.user);
+  const connections = useAppSelector((s) => s.connections);
+  const requests    = useAppSelector((s) => s.requests);
+  const dispatch    = useAppDispatch();
+  const router      = useRouter();
+  const pathname    = usePathname();
+
+  const connectionCount = connections?.length ?? 0;
+  const requestCount    = requests?.length    ?? 0;
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen,     setMenuOpen]     = useState(false);
@@ -61,7 +91,8 @@ export default function NavBar() {
     }
   };
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) =>
+    href === "/chat" ? pathname.startsWith("/chat") : pathname === href;
 
   return (
     <nav
@@ -107,14 +138,16 @@ export default function NavBar() {
                 href={href}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150"
                 style={{
-                  background: isActive(href) ? "var(--bg-overlay)" : "transparent",
-                  color:      isActive(href) ? "var(--text-primary)" : "var(--text-secondary)",
+                  background:   isActive(href) ? "var(--bg-overlay)" : "transparent",
+                  color:        isActive(href) ? "var(--text-primary)" : "var(--text-secondary)",
                   borderBottom: isActive(href) ? `2px solid var(--brand)` : "2px solid transparent",
                 }}
                 aria-current={isActive(href) ? "page" : undefined}
               >
                 <Icon size={14} strokeWidth={1.8} aria-hidden />
                 {label}
+                {href === "/connections" && <CountBadge count={connectionCount} type="connections" />}
+                {href === "/requests"    && <CountBadge count={requestCount}    type="requests"    />}
               </Link>
             ))}
             {user.isAdmin && (
@@ -151,7 +184,7 @@ export default function NavBar() {
                     style={{ border: "2px solid var(--border-strong)" }}
                   >
                     <Image
-                      src={user.photoUrl || "https://api.dicebear.com/8.x/avataaars/svg?seed=" + encodeURIComponent(user.firstName)}
+                      src={user.photoUrl || `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${encodeURIComponent(user.firstName)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
                       alt={`${user.firstName}'s avatar`}
                       fill
                       className="object-cover"
@@ -190,7 +223,7 @@ export default function NavBar() {
                     >
                       <div className="relative w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                         <Image
-                          src={user.photoUrl || "https://api.dicebear.com/8.x/avataaars/svg?seed=" + encodeURIComponent(user.firstName)}
+                          src={user.photoUrl || `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${encodeURIComponent(user.firstName)}&backgroundColor=b6e3f4,c0aede,d1d4f9`}
                           alt="avatar"
                           fill
                           className="object-cover"
@@ -262,14 +295,19 @@ export default function NavBar() {
 
               {/* Mobile hamburger */}
               <button
-                className="md:hidden vm-btn vm-btn-ghost w-8 h-8 p-0 rounded-lg"
+                className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg transition-colors"
+                style={{
+                  background: "var(--bg-elevated)",
+                  border:     "1px solid var(--border-strong)",
+                  color:      "var(--text-primary)",
+                }}
                 onClick={() => setMenuOpen((p) => !p)}
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={menuOpen}
               >
                 {menuOpen
-                  ? <X    size={16} strokeWidth={2} aria-hidden />
-                  : <Menu size={16} strokeWidth={2} aria-hidden />
+                  ? <X    size={18} strokeWidth={2.2} aria-hidden />
+                  : <Menu size={18} strokeWidth={2.2} aria-hidden />
                 }
               </button>
             </>
@@ -314,6 +352,8 @@ export default function NavBar() {
             >
               <Icon size={15} strokeWidth={1.8} aria-hidden />
               {label}
+              {href === "/connections" && <CountBadge count={connectionCount} type="connections" />}
+              {href === "/requests"    && <CountBadge count={requestCount}    type="requests"    />}
             </Link>
           ))}
           {user.isAdmin && (

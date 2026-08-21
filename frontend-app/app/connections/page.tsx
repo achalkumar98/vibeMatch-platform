@@ -69,13 +69,14 @@ export default function ConnectionsPage() {
         <div className="relative mb-6">
           <Search
             size={15}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
+            className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
             style={{ color: "var(--text-muted)" }}
             aria-hidden
           />
           <input
             type="search"
-            className="vm-input pl-9"
+            className="vm-input"
+            style={{ paddingLeft: "2.25rem" }}
             placeholder="Search connections…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

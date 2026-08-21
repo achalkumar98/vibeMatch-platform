@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 
 export type SendRequestStatus = "interested" | "ignored";
 export type ReviewRequestStatus = "accepted" | "rejected";
@@ -13,7 +13,7 @@ export const sendRequestApi = async (
   userId: string
 ): Promise<void> => {
   await axios.post(
-    `${BASE_URL}/api/request/send/${status}/${userId}`,
+    `${API_URL}/request/send/${status}/${userId}`,
     {},
     { withCredentials: true }
   );
@@ -28,7 +28,7 @@ export const reviewRequestApi = async (
   requestId: string
 ): Promise<void> => {
   await axios.post(
-    `${BASE_URL}/api/request/review/${status}/${requestId}`,
+    `${API_URL}/request/review/${status}/${requestId}`,
     {},
     { withCredentials: true }
   );

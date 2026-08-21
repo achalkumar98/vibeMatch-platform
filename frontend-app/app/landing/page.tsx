@@ -4,8 +4,14 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   Zap, MessageSquare, ImageUp, BarChart3, Gem, Clock,
-  ChevronDown, Github, ArrowRight, Sparkles,
+  ChevronDown, Github, ArrowRight, Sparkles, LayoutDashboard,
 } from "lucide-react";
+
+const MOCKUP_CARDS = [
+  { Icon: Zap,             title: "Swipe Feed",      desc: "Drag right to connect, left to skip. Cursor-paginated, no duplicates.", color: "#f59e0b" },
+  { Icon: MessageSquare,   title: "Real-time Chat",  desc: "Socket.IO 1:1 messaging with online presence and last-seen status.",     color: "#6366f1" },
+  { Icon: LayoutDashboard, title: "Admin Dashboard", desc: "Revenue charts, DAU graphs, user management and ban controls.",          color: "#22c55e" },
+];
 
 const TICKER_ITEMS = [
   "Swipe Feed", "Real-time Chat", "Connection Requests", "Premium Plans",
@@ -87,7 +93,7 @@ export default function LandingPage() {
 
         <div className="relative z-10 max-w-5xl w-full pt-24 sm:pt-32 pb-10 mx-auto">
 
-          {/* ── Live badge with snake border ── */}
+          {/* Live badge */}
           <div
             className="vm-snake-badge vm-snake-badge--green vm-animate-fade-in mb-8"
             aria-label="Platform status: Live"
@@ -96,7 +102,7 @@ export default function LandingPage() {
             Platform live — VibeMatch v2
           </div>
 
-          {/* ── Headline ── */}
+          {/* Headline */}
           <h1
             className="font-bold leading-[1.03] tracking-tight vm-animate-fade-up"
             style={{ fontSize: "clamp(2.8rem, 8vw, 5.5rem)" }}
@@ -121,12 +127,9 @@ export default function LandingPage() {
             and collaborate with the right people — all in one place.
           </p>
 
-          {/* ── CTA row ── */}
+          {/* CTA row */}
           <div className="mt-9 flex flex-wrap items-center gap-3 vm-animate-fade-up vm-delay-400">
-            <Link
-              href="/signup"
-              className="vm-btn vm-btn-solid px-6 py-2.5 text-sm vm-btn-glow"
-            >
+            <Link href="/signup" className="vm-btn vm-btn-solid px-6 py-2.5 text-sm vm-btn-glow">
               <Sparkles size={14} strokeWidth={2} aria-hidden />
               Get started free
               <ArrowRight size={14} strokeWidth={2} aria-hidden />
@@ -138,18 +141,9 @@ export default function LandingPage() {
               No credit card required
             </span>
           </div>
-
-          {/* ── Inline tech badges ── */}
-          <div className="mt-6 flex flex-wrap gap-2.5 vm-animate-fade-up vm-delay-500">
-            <span className="vm-badge-static vm-badge-static--live">Next.js 15</span>
-            <span className="vm-badge-static vm-badge-static--cyber">TypeScript</span>
-            <span className="vm-badge-static vm-badge-static--new">Socket.IO</span>
-            <span className="vm-badge-static vm-badge-static--gold">Razorpay</span>
-            <span className="vm-badge-static vm-badge-static--hot">Cloudinary</span>
-          </div>
         </div>
 
-        {/* ── Browser mockup ── */}
+        {/* Browser mockup */}
         <div className="relative z-10 max-w-5xl w-full mx-auto mb-6 vm-animate-scale-up vm-delay-300">
           <div
             className="w-full rounded-2xl overflow-hidden"
@@ -179,42 +173,22 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Mock feed cards */}
+            {/* Feature preview cards */}
             <div className="p-5 grid grid-cols-1 sm:grid-cols-3 gap-3 min-h-[200px]">
-              {[
-                { name: "Achal Kumar",  role: "Full-Stack Dev",    color: "#6366f1" },
-                { name: "Priya Sharma", role: "React Engineer",    color: "#22c55e" },
-                { name: "Rahul Verma",  role: "Node.js Expert",    color: "#f59e0b" },
-              ].map((p, i) => (
+              {MOCKUP_CARDS.map(({ Icon, title, desc, color }) => (
                 <div
-                  key={i}
-                  className="rounded-xl p-4 flex flex-col gap-3"
+                  key={title}
+                  className="rounded-xl p-4 flex flex-col gap-2"
                   style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
                 >
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                    style={{ background: p.color }}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: `${color}20`, border: `1px solid ${color}30` }}
                   >
-                    {p.name.charAt(0)}
+                    <Icon size={15} strokeWidth={1.8} style={{ color }} aria-hidden />
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{p.name}</div>
-                    <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{p.role}</div>
-                  </div>
-                  <div className="flex gap-2 mt-auto">
-                    <div
-                      className="flex-1 h-7 rounded-lg text-xs flex items-center justify-center"
-                      style={{ background: "var(--bg-overlay)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
-                    >
-                      Skip
-                    </div>
-                    <div
-                      className="flex-1 h-7 rounded-lg text-xs flex items-center justify-center font-semibold"
-                      style={{ background: "var(--text-primary)", color: "var(--bg-base)" }}
-                    >
-                      Connect ⚡
-                    </div>
-                  </div>
+                  <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{title}</div>
+                  <div className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{desc}</div>
                 </div>
               ))}
             </div>
@@ -260,7 +234,6 @@ export default function LandingPage() {
       <section className="py-24 px-5 sm:px-10 md:px-16 lg:px-24">
         <div className="max-w-5xl mx-auto">
 
-          {/* Section badge */}
           <div className="vm-snake-badge vm-snake-badge--purple mb-5 vm-animate-fade-in" style={{ fontSize: "10px" }}>
             <Sparkles size={10} strokeWidth={2} aria-hidden />
             Platform features
@@ -285,7 +258,6 @@ export default function LandingPage() {
                 key={title}
                 className={`glass-card p-6 flex flex-col gap-3 vm-animate-scale-up vm-delay-${(i % 3) * 100 + 100}`}
               >
-                {/* Feature icon + snake badge */}
                 <div className="flex items-center justify-between">
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -323,7 +295,6 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-14">
 
           <div className="flex-1 min-w-0">
-            {/* Section badge */}
             <div className="vm-snake-badge vm-snake-badge--cyan mb-5 vm-animate-fade-in" style={{ fontSize: "10px" }}>
               <Github size={10} strokeWidth={2} aria-hidden />
               Open source
@@ -361,14 +332,10 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Stats grid with snake badges */}
           <div className="grid grid-cols-2 gap-4 flex-shrink-0 vm-animate-scale-up vm-delay-200">
             {STATS.map(({ value, label, badge }) => (
               <div key={label} className="glass-card px-5 py-5 text-center min-w-[130px]">
-                <div
-                  className="font-bold text-base mb-1"
-                  style={{ color: "var(--text-primary)" }}
-                >
+                <div className="font-bold text-base mb-1" style={{ color: "var(--text-primary)" }}>
                   {value}
                 </div>
                 <div className="text-xs mb-2.5" style={{ color: "var(--text-muted)" }}>
@@ -393,7 +360,6 @@ export default function LandingPage() {
         className="py-28 px-5 text-center"
         style={{ borderTop: "1px solid var(--border)" }}
       >
-        {/* CTA badge */}
         <div
           className="vm-snake-badge vm-snake-badge--amber vm-animate-fade-in mx-auto mb-7"
           style={{ fontSize: "10px" }}
@@ -427,7 +393,6 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        {/* Logo lockup at bottom */}
         <div className="flex items-center justify-center gap-3 mt-14 vm-animate-fade-in vm-delay-400">
           <Image
             src="/assets/vibeMatch-logo.png"

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 import type { FeedResponse } from "@/types";
 
 /**
@@ -14,7 +14,7 @@ export const getFeedApi = async (
   const params: Record<string, string | number> = { limit };
   if (cursor) params.cursor = cursor;
 
-  const res = await axios.get<FeedResponse>(`${BASE_URL}/api/feed`, {
+  const res = await axios.get<FeedResponse>(`${API_URL}/feed`, {
     params,
     withCredentials: true,
   });

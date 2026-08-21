@@ -27,9 +27,9 @@ export default function EditProfile({ user }: EditProfileProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch     = useAppDispatch();
 
-  /* Generate deterministic avatar fallback (DiceBear) */
+  /* Professional neutral avatar — uses DiceBear "bottts-neutral" (robot/tech style) */
   const avatarSrc = photoUrl ||
-    `https://api.dicebear.com/8.x/avataaars/svg?seed=${encodeURIComponent(user.firstName + user.lastName)}`;
+    `https://api.dicebear.com/8.x/bottts-neutral/svg?seed=${encodeURIComponent(user.firstName + user.lastName)}&backgroundColor=b6e3f4,c0aede,d1d4f9`;
 
   const processFile = useCallback(async (file: File) => {
     if (!file.type.startsWith("image/")) { toast.error("Only image files are allowed."); return; }

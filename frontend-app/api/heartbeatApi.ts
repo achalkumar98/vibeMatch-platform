@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 
 /**
  * POST /api/heartbeat
@@ -8,7 +8,7 @@ import { BASE_URL } from "@/utils/constants";
  */
 export const sendHeartbeatApi = async (): Promise<void> => {
   await axios.post(
-    `${BASE_URL}/api/heartbeat`,
+    `${API_URL}/heartbeat`,
     {},
     { withCredentials: true }
   );

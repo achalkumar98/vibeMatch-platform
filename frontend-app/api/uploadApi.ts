@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "@/utils/constants";
+import { API_URL } from "@/utils/constants";
 
 /**
  * POST /api/upload/photo
@@ -11,7 +11,7 @@ export const uploadPhotoApi = async (file: File): Promise<string> => {
   formData.append("photo", file);
 
   const res = await axios.post<{ photoUrl: string }>(
-    `${BASE_URL}/api/upload/photo`,
+    `${API_URL}/upload/photo`,
     formData,
     {
       withCredentials: true,
