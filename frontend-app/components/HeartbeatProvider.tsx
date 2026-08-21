@@ -23,7 +23,7 @@ export default function HeartbeatProvider() {
     }, 30_000);
 
     return () => clearInterval(interval);
-  }, [user?._id]); // re-run only when the logged-in user changes
+  }, [user]); // re-run only when the logged-in user changes
 
   return null;
 }
