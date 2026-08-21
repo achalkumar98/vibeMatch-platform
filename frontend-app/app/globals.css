@@ -1,109 +1,324 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
-/* ── Base ──────────────────────────────────────────────────────────────────── */
-html,
+/* ── Google Inter font ─────────────────────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Design Tokens — Dark theme (default)
+   Applied via html.dark (next-themes adds this class)
+   ══════════════════════════════════════════════════════════════════════════════ */
+:root,
+html.dark {
+  /* Surface */
+  --bg-base:       #000000;
+  --bg-surface:    #0d0d0d;
+  --bg-elevated:   #141414;
+  --bg-overlay:    rgba(255,255,255,0.04);
+
+  /* Border */
+  --border:        rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.16);
+
+  /* Text */
+  --text-primary:  #ffffff;
+  --text-secondary:rgba(255,255,255,0.6);
+  --text-muted:    rgba(255,255,255,0.35);
+  --text-disabled: rgba(255,255,255,0.2);
+
+  /* Brand */
+  --brand:         #6366f1;
+  --brand-hover:   #4f46e5;
+  --brand-subtle:  rgba(99,102,241,0.12);
+
+  /* Status */
+  --success:       #22c55e;
+  --success-bg:    rgba(34,197,94,0.10);
+  --error:         #f87171;
+  --error-bg:      rgba(239,68,68,0.10);
+  --warning:       #fbbf24;
+
+  /* Nav */
+  --nav-bg:        rgba(0,0,0,0.82);
+
+  /* Input */
+  --input-bg:      rgba(255,255,255,0.05);
+  --input-border:  rgba(255,255,255,0.12);
+  --input-focus:   rgba(255,255,255,0.40);
+
+  /* Scrollbar */
+  --scrollbar-track: #0a0a0a;
+  --scrollbar-thumb: #2a2a2a;
+  --scrollbar-hover: #444;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Light theme tokens
+   ══════════════════════════════════════════════════════════════════════════════ */
+html.light {
+  /* Surface */
+  --bg-base:       #f9fafb;
+  --bg-surface:    #ffffff;
+  --bg-elevated:   #f3f4f6;
+  --bg-overlay:    rgba(0,0,0,0.03);
+
+  /* Border */
+  --border:        rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.16);
+
+  /* Text */
+  --text-primary:  #0f0f0f;
+  --text-secondary:rgba(0,0,0,0.60);
+  --text-muted:    rgba(0,0,0,0.38);
+  --text-disabled: rgba(0,0,0,0.22);
+
+  /* Brand */
+  --brand:         #4f46e5;
+  --brand-hover:   #4338ca;
+  --brand-subtle:  rgba(79,70,229,0.08);
+
+  /* Status */
+  --success:       #16a34a;
+  --success-bg:    rgba(22,163,74,0.10);
+  --error:         #dc2626;
+  --error-bg:      rgba(220,38,38,0.10);
+  --warning:       #d97706;
+
+  /* Nav */
+  --nav-bg:        rgba(249,250,251,0.90);
+
+  /* Input */
+  --input-bg:      #ffffff;
+  --input-border:  rgba(0,0,0,0.14);
+  --input-focus:   rgba(0,0,0,0.35);
+
+  /* Scrollbar */
+  --scrollbar-track: #f1f1f1;
+  --scrollbar-thumb: #c8c8c8;
+  --scrollbar-hover: #999;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Base
+   ══════════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
-  background-color: #000;
-  color: #f3f4f6;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
-    "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+               "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ── Scrollbar ─────────────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+::-webkit-scrollbar               { width: 5px; height: 5px; }
+::-webkit-scrollbar-track         { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb         { background: var(--scrollbar-thumb); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover   { background: var(--scrollbar-hover); }
 
 /* ── Focus ring ────────────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--brand);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
-/* ── Smooth page transitions ───────────────────────────────────────────────── */
-main { animation: fadeIn 0.25s ease; }
+/* ── Page transition ───────────────────────────────────────────────────────── */
+main { animation: fadeIn 0.2s ease; }
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Glass card utility ────────────────────────────────────────────────────── */
-.glass-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 12px;
-}
+/* ══════════════════════════════════════════════════════════════════════════════
+   Design-system utilities
+   ══════════════════════════════════════════════════════════════════════════════ */
 
-/* ── Form inputs — unified dark style ─────────────────────────────────────── */
+/* ── Glass card ────────────────────────────────────────────────────────────── */
+.glass-card {
+  background:         var(--bg-overlay);
+  border:             1px solid var(--border);
+  backdrop-filter:    blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius:      14px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.glass-card:hover { border-color: var(--border-strong); }
+
+/* ── Section divider ───────────────────────────────────────────────────────── */
+.section-divider { border-top: 1px solid var(--border); }
+
+/* ── Form input ────────────────────────────────────────────────────────────── */
 .vm-input {
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #fff;
-  font-size: 0.9rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  outline: none;
+  width:            100%;
+  padding:          0.6rem 0.875rem;
+  border-radius:    9px;
+  background:       var(--input-bg);
+  border:           1px solid var(--input-border);
+  color:            var(--text-primary);
+  font-size:        0.875rem;
+  font-family:      inherit;
+  line-height:      1.5;
+  outline:          none;
+  transition:       border-color 0.18s ease, box-shadow 0.18s ease,
+                    background 0.25s ease, color 0.25s ease;
 }
 .vm-input:focus {
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+  border-color: var(--input-focus);
+  box-shadow:   0 0 0 3px rgba(99,102,241,0.12);
 }
-.vm-input::placeholder { color: rgba(255, 255, 255, 0.3); }
+.vm-input::placeholder { color: var(--text-disabled); }
 
-/* ── Primary button ────────────────────────────────────────────────────────── */
+/* dark select arrow fix */
+html.dark select.vm-input { color-scheme: dark; }
+html.light select.vm-input { color-scheme: light; }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
 .vm-btn {
-  display: inline-flex;
-  align-items: center;
+  display:         inline-flex;
+  align-items:     center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
-  user-select: none;
+  gap:             0.4rem;
+  padding:         0.575rem 1.1rem;
+  border-radius:   9px;
+  font-size:       0.875rem;
+  font-weight:     500;
+  font-family:     inherit;
+  letter-spacing:  -0.01em;
+  cursor:          pointer;
+  white-space:     nowrap;
+  user-select:     none;
+  transition:      opacity 0.14s ease, transform 0.1s ease,
+                   background 0.14s ease, border-color 0.14s ease;
 }
-.vm-btn:active { transform: scale(0.98); }
-.vm-btn-white {
-  background: #fff;
-  color: #000;
+.vm-btn:active          { transform: scale(0.975); }
+.vm-btn:disabled        { opacity: 0.42; cursor: not-allowed; transform: none; }
+
+/* Primary — brand fill */
+.vm-btn-primary {
+  background: var(--brand);
+  color: #fff;
   border: 1px solid transparent;
 }
-.vm-btn-white:hover { opacity: 0.88; }
-.vm-btn-outline {
-  background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-}
-.vm-btn-outline:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-.vm-btn-ghost {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-.vm-btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+.vm-btn-primary:hover:not(:disabled) { background: var(--brand-hover); }
 
-/* ── Ticker / marquee ──────────────────────────────────────────────────────── */
-.marquee-track {
-  display: flex;
-  gap: 2rem;
-  animation: marquee 28s linear infinite;
-  will-change: transform;
+/* Solid white / black contrast button */
+.vm-btn-solid {
+  background: var(--text-primary);
+  color: var(--bg-base);
+  border: 1px solid transparent;
 }
+.vm-btn-solid:hover:not(:disabled) { opacity: 0.85; }
+
+/* Outline */
+.vm-btn-outline {
+  background:   transparent;
+  color:        var(--text-primary);
+  border:       1px solid var(--border-strong);
+}
+.vm-btn-outline:hover:not(:disabled) {
+  background:   var(--bg-overlay);
+  border-color: var(--text-muted);
+}
+
+/* Ghost */
+.vm-btn-ghost {
+  background: var(--bg-overlay);
+  color:      var(--text-secondary);
+  border:     1px solid var(--border);
+}
+.vm-btn-ghost:hover:not(:disabled) {
+  background: var(--bg-elevated);
+  color:      var(--text-primary);
+}
+
+/* Danger */
+.vm-btn-danger {
+  background: transparent;
+  color:      var(--error);
+  border:     1px solid transparent;
+}
+.vm-btn-danger:hover:not(:disabled) { background: var(--error-bg); }
+
+/* ── Badge / pill ──────────────────────────────────────────────────────────── */
+.vm-badge {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            0.3rem;
+  padding:        0.2rem 0.6rem;
+  border-radius:  100px;
+  font-size:      0.7rem;
+  font-weight:    500;
+  letter-spacing: 0.02em;
+}
+.vm-badge-success { background: var(--success-bg);  color: var(--success); }
+.vm-badge-error   { background: var(--error-bg);    color: var(--error); }
+.vm-badge-brand   { background: var(--brand-subtle); color: var(--brand); }
+.vm-badge-muted   { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* ── Toast ─────────────────────────────────────────────────────────────────── */
+.vm-toast {
+  padding:       0.7rem 1rem;
+  border-radius: 10px;
+  font-size:     0.85rem;
+  font-weight:   500;
+  box-shadow:    0 8px 30px rgba(0,0,0,0.25);
+  animation:     slideUp 0.3s ease;
+}
+
+/* ── Ticker marquee ────────────────────────────────────────────────────────── */
+.marquee-track {
+  display:          flex;
+  gap:              1.5rem;
+  animation:        marquee 32s linear infinite;
+  will-change:      transform;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
+}
+
+/* ── Skeleton shimmer ──────────────────────────────────────────────────────── */
+.skeleton {
+  background:            var(--bg-elevated);
+  border-radius:         8px;
+  animation:             shimmer 1.6s infinite linear;
+  background-image:      linear-gradient(
+    90deg,
+    var(--bg-elevated) 0%,
+    var(--border) 50%,
+    var(--bg-elevated) 100%
+  );
+  background-size: 200% 100%;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Page title typography ─────────────────────────────────────────────────── */
+.page-title {
+  font-size:      clamp(1.4rem, 3vw, 2rem);
+  font-weight:    700;
+  letter-spacing: -0.03em;
+  color:          var(--text-primary);
+  line-height:    1.2;
+}
+.page-subtitle {
+  font-size:   0.9rem;
+  color:       var(--text-muted);
+  line-height: 1.6;
 }

@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Inter } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import StoreProvider from "@/redux/StoreProvider";
+import ThemeProvider from "@/components/ThemeProvider";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import HeartbeatProvider from "@/components/HeartbeatProvider";
+import ToastWrapper from "@/components/ToastWrapper";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "VibeMatch – Connect with Developers",
@@ -19,28 +29,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="flex flex-col min-h-screen bg-black text-gray-100 antialiased">
-        {/* Razorpay SDK — loaded lazily, only needed on /premium */}
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body
+        className="flex flex-col min-h-screen antialiased"
+        style={{ backgroundColor: "var(--bg-base)", color: "var(--text-primary)" }}
+      >
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
           strategy="lazyOnload"
         />
 
-        <StoreProvider>
-          {/* Heartbeat: keeps lastSeen fresh while user is logged in */}
-          <HeartbeatProvider />
+        <ThemeProvider>
+          <StoreProvider>
+            <HeartbeatProvider />
+            <NavBar />
 
-          {/* Fixed minimal top navbar */}
-          <NavBar />
+            {/*
+              ToastWrapper reads the current theme and renders react-hot-toast's
+              <Toaster> with matching styles. It must be inside ThemeProvider.
+            */}
+            <ToastWrapper />
 
-          {/* Page content — pt-16 clears the fixed 64 px navbar */}
-          <main className="flex-grow">
-            {children}
-          </main>
-
-          <Footer />
-        </StoreProvider>
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </StoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

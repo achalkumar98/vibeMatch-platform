@@ -2,75 +2,53 @@
 
 import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
+import toast from "react-hot-toast";
+import { Upload, Loader2, X, AlertCircle, User } from "lucide-react";
 import { useAppDispatch } from "@/redux/hooks";
 import { addUser } from "@/redux/slices/userSlice";
 import { editProfileApi } from "@/api/profileApi";
 import { uploadPhotoApi } from "@/api/uploadApi";
-import type { User } from "@/types";
+import type { User as UserType } from "@/types";
 
-interface EditProfileProps {
-  user: User;
-}
+interface EditProfileProps { user: UserType; }
 
 export default function EditProfile({ user }: EditProfileProps) {
-  const [firstName, setFirstName] = useState(user.firstName);
-  const [lastName, setLastName] = useState(user.lastName ?? "");
-  const [photoUrl, setPhotoUrl] = useState(user.photoUrl ?? "");
-  const [age, setAge] = useState<number | string>(user.age ?? "");
-  const [gender, setGender] = useState(user.gender ?? "");
-  const [about, setAbout] = useState(user.about ?? "");
+  const [firstName,   setFirstName]   = useState(user.firstName);
+  const [lastName,    setLastName]    = useState(user.lastName ?? "");
+  const [photoUrl,    setPhotoUrl]    = useState(user.photoUrl ?? "");
+  const [age,         setAge]         = useState<number | string>(user.age ?? "");
+  const [gender,      setGender]      = useState(user.gender ?? "");
+  const [about,       setAbout]       = useState(user.about ?? "");
   const [skillsInput, setSkillsInput] = useState((user.skills ?? []).join(", "));
-  const [error, setError] = useState("");
-  const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [dragOver, setDragOver] = useState(false);
+  const [error,       setError]       = useState("");
+  const [uploading,   setUploading]   = useState(false);
+  const [dragOver,    setDragOver]    = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dispatch = useAppDispatch();
-
-  const showToast = (type: "success" | "error", msg: string) => {
-    setToast({ type, msg });
-    setTimeout(() => setToast(null), 3500);
-  };
-
-  // ── Upload logic ──────────────────────────────────────────────────────────
+  const dispatch     = useAppDispatch();
 
   const processFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      showToast("error", "Only image files are allowed.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      showToast("error", "File must be under 5 MB.");
-      return;
-    }
+    if (!file.type.startsWith("image/")) { toast.error("Only image files are allowed."); return; }
+    if (file.size > 5 * 1024 * 1024)    { toast.error("File must be under 5 MB."); return; }
     setUploading(true);
+    const id = toast.loading("Uploading photo…");
     try {
       const url = await uploadPhotoApi(file);
       setPhotoUrl(url);
-      showToast("success", "Photo uploaded successfully.");
+      toast.success("Photo uploaded and optimised.", { id });
     } catch {
-      showToast("error", "Upload failed. Check your Cloudinary config.");
+      toast.error("Upload failed. Check your Cloudinary config.", { id });
     } finally {
       setUploading(false);
     }
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
     if (file) processFile(file);
-  };
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setDragOver(false);
-      const file = e.dataTransfer.files?.[0];
-      if (file) processFile(file);
-    },
-    [processFile]
-  );
-
-  // ── Save ─────────────────────────────────────────────────────────────────
+  }, [processFile]);
 
   const saveProfile = async () => {
     setError("");
@@ -78,58 +56,57 @@ export default function EditProfile({ user }: EditProfileProps) {
       setError("First name, age, and gender are required.");
       return;
     }
-    const skills = skillsInput
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const skills = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
+    const id = toast.loading("Saving profile…");
     try {
-      const updated = await editProfileApi({
-        firstName,
-        lastName,
-        photoUrl: photoUrl || undefined,
-        age: Number(age),
-        gender,
-        about,
-        skills,
-      });
+      const updated = await editProfileApi({ firstName, lastName, photoUrl: photoUrl || undefined, age: Number(age), gender, about, skills });
       dispatch(addUser(updated));
-      showToast("success", "Profile saved successfully!");
+      toast.success("Profile saved successfully!", { id });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       setError(msg);
+      toast.error(msg, { id });
     }
   };
 
   const previewUrl = photoUrl || "https://www.gravatar.com/avatar?d=mp";
+  const skillTags  = skillsInput.split(",").map((s) => s.trim()).filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-black" style={{ paddingTop: "56px" }}>
-      <div className="max-w-4xl mx-auto px-5 py-10">
-        <h1 className="text-2xl font-bold text-white mb-8">Edit Profile</h1>
+    <div className="min-h-screen" style={{ background: "var(--bg-base)", paddingTop: "56px" }}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+
+        {/* Page title */}
+        <div className="flex items-center gap-2.5 mb-8">
+          <User size={20} style={{ color: "var(--brand)" }} strokeWidth={1.8} aria-hidden />
+          <h1 className="page-title">Edit Profile</h1>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* ── Left: photo upload ────────────────────────────────────── */}
+
+          {/* ── Photo column ─────────────────────────────────────────────── */}
           <div className="flex flex-col items-center gap-4">
-            {/* Avatar preview */}
-            <div className="w-32 h-32 rounded-full overflow-hidden relative ring-2 ring-white/10">
+
+            {/* Avatar */}
+            <div
+              className="relative w-32 h-32 rounded-full overflow-hidden"
+              style={{ border: "2px solid var(--border-strong)" }}
+            >
               <Image
                 src={previewUrl}
-                alt="Profile photo"
+                alt="Your profile photo"
                 fill
                 className="object-cover"
                 sizes="128px"
               />
               {uploading && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                  <svg className="animate-spin w-6 h-6 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
+                <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.55)" }}>
+                  <Loader2 size={24} className="animate-spin text-white" aria-label="Uploading…" />
                 </div>
               )}
             </div>
 
-            {/* Drag-and-drop zone */}
+            {/* Drop zone */}
             <div
               role="button"
               tabIndex={0}
@@ -140,27 +117,41 @@ export default function EditProfile({ user }: EditProfileProps) {
               onDrop={handleDrop}
               className="w-full rounded-xl p-4 text-center cursor-pointer transition-colors"
               style={{
-                border: `2px dashed ${dragOver ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.12)"}`,
-                background: dragOver ? "rgba(255,255,255,0.05)" : "transparent",
+                border:     `2px dashed ${dragOver ? "var(--brand)" : "var(--border-strong)"}`,
+                background: dragOver ? "var(--brand-subtle)" : "transparent",
               }}
-              aria-label="Upload profile photo"
+              aria-label="Upload profile photo — drag and drop or click"
             >
-              <p className="text-xs text-white/40">
+              <Upload
+                size={18}
+                className="mx-auto mb-2"
+                style={{ color: dragOver ? "var(--brand)" : "var(--text-muted)" }}
+                aria-hidden
+              />
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                 {uploading ? "Uploading…" : "Drag & drop or click to upload"}
               </p>
-              <p className="text-xs text-white/20 mt-1">JPG, PNG, WebP · max 5 MB</p>
+              <p className="text-2xs mt-1" style={{ color: "var(--text-disabled)" }}>
+                JPG · PNG · WebP · max 5 MB
+              </p>
             </div>
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={handleFileChange}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) processFile(f); }}
+              aria-label="File upload"
             />
 
-            {/* OR paste URL */}
+            {/* URL fallback */}
             <div className="w-full">
-              <label className="text-xs text-white/40 block mb-1.5">Or paste image URL</label>
+              <label
+                className="text-xs font-medium block mb-1.5"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Or paste image URL
+              </label>
               <input
                 type="url"
                 className="vm-input text-sm"
@@ -169,58 +160,50 @@ export default function EditProfile({ user }: EditProfileProps) {
                 onChange={(e) => setPhotoUrl(e.target.value)}
               />
             </div>
+
+            {/* Clear photo */}
+            {photoUrl && (
+              <button
+                type="button"
+                onClick={() => setPhotoUrl("")}
+                className="vm-btn vm-btn-ghost text-xs px-3 py-1.5 w-full"
+              >
+                <X size={12} strokeWidth={2} aria-hidden />
+                Clear photo
+              </button>
+            )}
           </div>
 
-          {/* ── Right: form ───────────────────────────────────────────── */}
+          {/* ── Form column ──────────────────────────────────────────────── */}
           <div className="lg:col-span-2 flex flex-col gap-4">
+
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-white/50 block mb-1.5 font-medium">
-                  First name <span className="text-red-400">*</span>
+                <label htmlFor="ep-firstName" className="text-xs font-medium block mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                  First name <span style={{ color: "var(--error)" }}>*</span>
                 </label>
-                <input
-                  type="text"
-                  className="vm-input"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                />
+                <input id="ep-firstName" type="text" className="vm-input" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
               </div>
               <div>
-                <label className="text-xs text-white/50 block mb-1.5 font-medium">Last name</label>
-                <input
-                  type="text"
-                  className="vm-input"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
+                <label htmlFor="ep-lastName" className="text-xs font-medium block mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                  Last name
+                </label>
+                <input id="ep-lastName" type="text" className="vm-input" value={lastName} onChange={(e) => setLastName(e.target.value)} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs text-white/50 block mb-1.5 font-medium">
-                  Age <span className="text-red-400">*</span>
+                <label htmlFor="ep-age" className="text-xs font-medium block mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                  Age <span style={{ color: "var(--error)" }}>*</span>
                 </label>
-                <input
-                  type="number"
-                  className="vm-input"
-                  min={18}
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  required
-                />
+                <input id="ep-age" type="number" className="vm-input" min={18} value={age} onChange={(e) => setAge(e.target.value)} required />
               </div>
               <div>
-                <label className="text-xs text-white/50 block mb-1.5 font-medium">
-                  Gender <span className="text-red-400">*</span>
+                <label htmlFor="ep-gender" className="text-xs font-medium block mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                  Gender <span style={{ color: "var(--error)" }}>*</span>
                 </label>
-                <select
-                  className="vm-input"
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  required
-                >
+                <select id="ep-gender" className="vm-input" value={gender} onChange={(e) => setGender(e.target.value)} required>
                   <option value="">Select…</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
@@ -230,8 +213,11 @@ export default function EditProfile({ user }: EditProfileProps) {
             </div>
 
             <div>
-              <label className="text-xs text-white/50 block mb-1.5 font-medium">About</label>
+              <label htmlFor="ep-about" className="text-xs font-medium block mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                About
+              </label>
               <textarea
+                id="ep-about"
                 className="vm-input resize-none"
                 rows={4}
                 placeholder="Tell other developers about yourself…"
@@ -241,26 +227,29 @@ export default function EditProfile({ user }: EditProfileProps) {
             </div>
 
             <div>
-              <label className="text-xs text-white/50 block mb-1.5 font-medium">
-                Skills <span className="text-white/25 font-normal">(comma-separated)</span>
+              <label htmlFor="ep-skills" className="text-xs font-medium block mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                Skills{" "}
+                <span className="font-normal" style={{ color: "var(--text-disabled)" }}>
+                  (comma-separated)
+                </span>
               </label>
               <input
+                id="ep-skills"
                 type="text"
                 className="vm-input"
                 placeholder="React, Node.js, TypeScript…"
                 value={skillsInput}
                 onChange={(e) => setSkillsInput(e.target.value)}
               />
-              {/* Tags preview */}
-              {skillsInput && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {skillsInput.split(",").map((s) => s.trim()).filter(Boolean).map((skill) => (
+              {skillTags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2" role="list" aria-label="Skill tags">
+                  {skillTags.map((s) => (
                     <span
-                      key={skill}
-                      className="px-2.5 py-0.5 rounded-full text-xs text-white/60"
-                      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}
+                      key={s}
+                      role="listitem"
+                      className="vm-badge vm-badge-muted"
                     >
-                      {skill}
+                      {s}
                     </span>
                   ))}
                 </div>
@@ -268,7 +257,12 @@ export default function EditProfile({ user }: EditProfileProps) {
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
+              <p
+                className="text-sm px-3 py-2 rounded-lg flex items-center gap-2"
+                style={{ color: "var(--error)", background: "var(--error-bg)", border: "1px solid var(--error)" }}
+                role="alert"
+              >
+                <AlertCircle size={14} strokeWidth={2} aria-hidden />
                 {error}
               </p>
             )}
@@ -276,29 +270,13 @@ export default function EditProfile({ user }: EditProfileProps) {
             <button
               type="button"
               onClick={saveProfile}
-              className="vm-btn vm-btn-white py-2.5 self-start px-8"
+              className="vm-btn vm-btn-primary py-2.5 self-start px-8"
             >
               Save changes
             </button>
           </div>
         </div>
       </div>
-
-      {/* Toast */}
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-fadeIn">
-          <div
-            className="px-4 py-3 rounded-xl text-sm font-medium shadow-lg"
-            style={{
-              background: toast.type === "success" ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
-              border: `1px solid ${toast.type === "success" ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)"}`,
-              color: toast.type === "success" ? "#86efac" : "#fca5a5",
-            }}
-          >
-            {toast.msg}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

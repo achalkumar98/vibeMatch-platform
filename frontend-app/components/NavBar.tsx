@@ -3,40 +3,52 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
+import {
+  Zap,
+  Users,
+  UserPlus,
+  Star,
+  LayoutDashboard,
+  User,
+  LogOut,
+  ChevronDown,
+  Menu,
+  X,
+} from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { removeUser } from "@/redux/slices/userSlice";
 import { logoutApi } from "@/api/profileApi";
-import Image from "next/image";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
-  { href: "/feed", label: "Feed" },
-  { href: "/connections", label: "Connections" },
-  { href: "/requests", label: "Requests" },
-  { href: "/premium", label: "Premium" },
+  { href: "/feed",        label: "Feed",        Icon: Zap },
+  { href: "/connections", label: "Connections", Icon: Users },
+  { href: "/requests",    label: "Requests",    Icon: UserPlus },
+  { href: "/premium",     label: "Premium",     Icon: Star },
 ];
 
 export default function NavBar() {
-  const user = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-  const pathname = usePathname();
+  const user       = useAppSelector((s) => s.user);
+  const dispatch   = useAppDispatch();
+  const router     = useRouter();
+  const pathname   = usePathname();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen,     setMenuOpen]     = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
+  /* Close dropdown on outside click */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
         setDropdownOpen(false);
-      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Close mobile menu on route change
+  /* Close everything on route change */
   useEffect(() => {
     setMenuOpen(false);
     setDropdownOpen(false);
@@ -58,183 +70,260 @@ export default function NavBar() {
     <nav
       className="fixed top-0 left-0 right-0 z-50 h-14"
       style={{
-        background: "rgba(0,0,0,0.85)",
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
+        background:             "var(--nav-bg)",
+        borderBottom:           "1px solid var(--border)",
+        backdropFilter:         "blur(18px)",
+        WebkitBackdropFilter:   "blur(18px)",
       }}
     >
-      <div className="max-w-7xl mx-auto px-5 h-full flex items-center justify-between">
-        {/* Logo */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-4">
+
+        {/* ── Logo ─────────────────────────────────────────────────────── */}
         <Link
           href={user ? "/feed" : "/"}
-          className="text-white font-semibold text-[15px] tracking-tight flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-1.5 shrink-0 hover:opacity-75 transition-opacity"
+          aria-label="VibeMatch home"
         >
-          <span className="text-lg">⚡</span>
-          VibeMatch
+          <Zap
+            size={18}
+            className="text-brand-500"
+            strokeWidth={2.2}
+            aria-hidden
+          />
+          <span
+            className="font-semibold tracking-tight"
+            style={{ fontSize: "15px", color: "var(--text-primary)" }}
+          >
+            VibeMatch
+          </span>
         </Link>
 
-        {/* Desktop nav — only shown when logged in */}
+        {/* ── Desktop nav (authenticated) ──────────────────────────────── */}
         {user && (
-          <div className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map(({ href, label }) => (
+          <div className="hidden md:flex items-center gap-0.5 flex-1 justify-center">
+            {NAV_LINKS.map(({ href, label, Icon }) => (
               <Link
                 key={href}
                 href={href}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                  isActive(href)
-                    ? "bg-white/10 text-white"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                style={{
+                  background: isActive(href) ? "var(--bg-overlay)" : "transparent",
+                  color:      isActive(href) ? "var(--text-primary)" : "var(--text-secondary)",
+                }}
+                aria-current={isActive(href) ? "page" : undefined}
               >
+                <Icon size={14} strokeWidth={1.8} aria-hidden />
                 {label}
               </Link>
             ))}
             {user.isAdmin && (
               <Link
                 href="/admin"
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                  pathname.startsWith("/admin")
-                    ? "bg-white/10 text-white"
-                    : "text-white/60 hover:text-white hover:bg-white/5"
-                }`}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                style={{
+                  background: pathname.startsWith("/admin") ? "var(--bg-overlay)" : "transparent",
+                  color:      pathname.startsWith("/admin") ? "var(--text-primary)" : "var(--text-secondary)",
+                }}
+                aria-current={pathname.startsWith("/admin") ? "page" : undefined}
               >
+                <LayoutDashboard size={14} strokeWidth={1.8} aria-hidden />
                 Admin
               </Link>
             )}
           </div>
         )}
 
-        {/* Right side */}
-        <div className="flex items-center gap-3">
-          {user ? (
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setDropdownOpen((p) => !p)}
-                className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
-                aria-label="User menu"
-              >
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20">
-                  <Image
-                    src={user.photoUrl || "https://www.gravatar.com/avatar?d=mp"}
-                    alt="avatar"
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <span className="hidden sm:block text-sm text-white/80 max-w-[100px] truncate">
-                  {user.firstName}
-                </span>
-                <svg
-                  className={`w-3 h-3 text-white/50 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+        {/* ── Right side ───────────────────────────────────────────────── */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Theme toggle — always visible */}
+          <ThemeToggle />
 
-              {/* Dropdown */}
-              {dropdownOpen && (
-                <div
-                  className="absolute right-0 mt-2 w-48 rounded-xl overflow-hidden shadow-2xl z-50"
-                  style={{
-                    background: "#111",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  }}
+          {user ? (
+            <>
+              {/* Avatar dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen((p) => !p)}
+                  className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2"
+                  style={{ "--tw-ring-color": "var(--brand)" } as React.CSSProperties}
+                  aria-label="User menu"
+                  aria-expanded={dropdownOpen}
                 >
-                  <div className="px-4 py-3 border-b border-white/8">
-                    <p className="text-xs text-white/40 uppercase tracking-wider">Account</p>
-                    <p className="text-sm text-white font-medium truncate">{user.firstName} {user.lastName}</p>
+                  <div
+                    className="w-8 h-8 rounded-full overflow-hidden shrink-0"
+                    style={{ border: "1.5px solid var(--border-strong)" }}
+                  >
+                    <Image
+                      src={user.photoUrl || "https://www.gravatar.com/avatar?d=mp"}
+                      alt="Your avatar"
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="py-1">
-                    {[
-                      { href: "/profile", label: "Profile" },
-                      { href: "/premium", label: "Premium" },
-                      ...(user.isAdmin ? [{ href: "/admin", label: "Admin Dashboard" }] : []),
-                    ].map(({ href, label }) => (
-                      <Link
-                        key={href}
-                        href={href}
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center px-4 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                      >
-                        {label}
-                      </Link>
-                    ))}
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors"
+                  <span
+                    className="hidden sm:block text-sm font-medium max-w-[88px] truncate"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    {user.firstName}
+                  </span>
+                  <ChevronDown
+                    size={13}
+                    strokeWidth={2}
+                    className={`transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                    style={{ color: "var(--text-muted)" }}
+                    aria-hidden
+                  />
+                </button>
+
+                {/* Dropdown panel */}
+                {dropdownOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-52 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in"
+                    style={{
+                      background: "var(--bg-surface)",
+                      border:     "1px solid var(--border)",
+                    }}
+                  >
+                    {/* Header */}
+                    <div
+                      className="px-4 py-3"
+                      style={{ borderBottom: "1px solid var(--border)" }}
                     >
-                      Sign out
-                    </button>
+                      <p className="text-2xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
+                        Signed in as
+                      </p>
+                      <p className="text-sm font-semibold truncate mt-0.5" style={{ color: "var(--text-primary)" }}>
+                        {user.firstName} {user.lastName}
+                      </p>
+                    </div>
+
+                    {/* Links */}
+                    <div className="py-1">
+                      {[
+                        { href: "/profile",  label: "Profile",           Icon: User },
+                        { href: "/premium",  label: "Premium",           Icon: Star },
+                        ...(user.isAdmin
+                          ? [{ href: "/admin", label: "Admin Dashboard", Icon: LayoutDashboard }]
+                          : []),
+                      ].map(({ href, label, Icon: Ic }) => (
+                        <Link
+                          key={href}
+                          href={href}
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-sm transition-colors"
+                          style={{ color: "var(--text-secondary)" }}
+                          onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLElement).style.background = "var(--bg-overlay)";
+                            (e.currentTarget as HTMLElement).style.color = "var(--text-primary)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLElement).style.background = "transparent";
+                            (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
+                          }}
+                        >
+                          <Ic size={14} strokeWidth={1.8} aria-hidden />
+                          {label}
+                        </Link>
+                      ))}
+
+                      <div style={{ borderTop: "1px solid var(--border)" }} className="mt-1 pt-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-2.5 w-full px-4 py-2 text-sm transition-colors"
+                          style={{ color: "var(--error)" }}
+                          onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLElement).style.background = "var(--error-bg)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLElement).style.background = "transparent";
+                          }}
+                        >
+                          <LogOut size={14} strokeWidth={1.8} aria-hidden />
+                          Sign out
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+
+              {/* Mobile hamburger */}
+              <button
+                className="md:hidden vm-btn vm-btn-ghost w-8 h-8 p-0 rounded-lg"
+                onClick={() => setMenuOpen((p) => !p)}
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={menuOpen}
+              >
+                {menuOpen
+                  ? <X size={16} strokeWidth={2} aria-hidden />
+                  : <Menu size={16} strokeWidth={2} aria-hidden />
+                }
+              </button>
+            </>
           ) : (
             <>
               <Link
                 href="/login"
-                className="text-sm text-white/70 hover:text-white transition-colors px-3 py-1.5"
+                className="text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+                style={{ color: "var(--text-secondary)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)"; }}
               >
                 Log in
               </Link>
-              <Link
-                href="/signup"
-                className="vm-btn vm-btn-white text-sm px-4 py-1.5"
-              >
+              <Link href="/signup" className="vm-btn vm-btn-solid text-sm px-4 py-1.5">
                 Sign up
               </Link>
             </>
           )}
-
-          {/* Mobile hamburger — only when logged in */}
-          {user && (
-            <button
-              className="md:hidden flex flex-col gap-1.5 p-1.5 text-white/70 hover:text-white"
-              onClick={() => setMenuOpen((p) => !p)}
-              aria-label="Toggle menu"
-            >
-              <span className={`block w-5 h-0.5 bg-current transition-all ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
-              <span className={`block w-5 h-0.5 bg-current transition-all ${menuOpen ? "opacity-0" : ""}`} />
-              <span className={`block w-5 h-0.5 bg-current transition-all ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
-            </button>
-          )}
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* ── Mobile slide-down menu ────────────────────────────────────────── */}
       {user && menuOpen && (
         <div
-          className="md:hidden border-t px-5 py-3 flex flex-col gap-1"
+          className="md:hidden px-4 pb-4 pt-2 flex flex-col gap-1 animate-slide-up"
           style={{
-            background: "rgba(0,0,0,0.95)",
-            borderColor: "rgba(255,255,255,0.07)",
+            background:  "var(--bg-surface)",
+            borderTop:   "1px solid var(--border)",
+            borderBottom: "1px solid var(--border)",
           }}
         >
-          {NAV_LINKS.map(({ href, label }) => (
+          {NAV_LINKS.map(({ href, label, Icon }) => (
             <Link
               key={href}
               href={href}
-              className={`px-3 py-2 rounded-md text-sm transition-colors ${
-                isActive(href) ? "bg-white/10 text-white" : "text-white/60 hover:text-white"
-              }`}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              style={{
+                background: isActive(href) ? "var(--bg-overlay)" : "transparent",
+                color:      isActive(href) ? "var(--text-primary)" : "var(--text-secondary)",
+              }}
             >
+              <Icon size={15} strokeWidth={1.8} aria-hidden />
               {label}
             </Link>
           ))}
           {user.isAdmin && (
-            <Link href="/admin" className="px-3 py-2 rounded-md text-sm text-white/60 hover:text-white">
-              Admin
+            <Link
+              href="/admin"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              <LayoutDashboard size={15} strokeWidth={1.8} aria-hidden />
+              Admin Dashboard
             </Link>
           )}
-          <button
-            onClick={handleLogout}
-            className="px-3 py-2 text-sm text-left text-red-400 hover:text-red-300 transition-colors"
-          >
-            Sign out
-          </button>
+          <div style={{ borderTop: "1px solid var(--border)" }} className="mt-1 pt-1">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              style={{ color: "var(--error)" }}
+            >
+              <LogOut size={15} strokeWidth={1.8} aria-hidden />
+              Sign out
+            </button>
+          </div>
         </div>
       )}
     </nav>
