@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { Eye, EyeOff, Github, Loader2, Zap, ArrowRight, Check } from "lucide-react";
+import {
+  Eye, EyeOff, Github, Loader2, ArrowRight, Check,
+} from "lucide-react";
 import { useAppDispatch } from "@/redux/hooks";
 import { addUser } from "@/redux/slices/userSlice";
 import { signupApi } from "@/api/signupApi";
@@ -22,10 +25,10 @@ function GoogleIcon() {
 }
 
 const PERKS = [
-  "Swipe through developer profiles",
-  "Real-time chat with Socket.IO",
-  "Cloudinary-powered photo uploads",
-  "Premium plans via Razorpay",
+  { text: "Swipe through developer profiles", color: "#f59e0b" },
+  { text: "Real-time 1:1 chat with Socket.IO", color: "#6366f1" },
+  { text: "Cloudinary-powered photo uploads",  color: "#22c55e" },
+  { text: "Premium plans via Razorpay",         color: "#8b5cf6" },
 ];
 
 export default function SignUpPage() {
@@ -66,59 +69,118 @@ export default function SignUpPage() {
   return (
     <div
       className="min-h-screen flex"
-      style={{ background: "var(--bg-base)", paddingTop: "56px" }}
+      style={{ background: "var(--bg-base)", paddingTop: "60px" }}
     >
       {/* ── Left panel ──────────────────────────────────────────────────── */}
       <aside
-        className="hidden lg:flex flex-col justify-between w-[44%] p-12 shrink-0"
+        className="hidden lg:flex flex-col justify-between w-[46%] px-12 py-14 flex-shrink-0 relative overflow-hidden"
         style={{ borderRight: "1px solid var(--border)" }}
         aria-hidden
       >
-        <div className="flex items-center gap-2">
-          <Zap size={16} className="text-brand-500" strokeWidth={2.2} />
-          <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>VibeMatch</span>
+        {/* Glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 80% 60% at 80% 40%, var(--brand-subtle) 0%, transparent 70%)",
+          }}
+        />
+
+        {/* Logo */}
+        <div className="relative z-10 flex items-center gap-3 vm-animate-fade-in">
+          <Image
+            src="/assets/vibeMatch-logo.png"
+            alt="VibeMatch"
+            width={44}
+            height={44}
+            className="vm-logo-img rounded-xl"
+            style={{ width: 44, height: 44 }}
+          />
+          <div>
+            <p
+              className="font-bold tracking-tight"
+              style={{ fontSize: "18px", letterSpacing: "-0.03em", color: "var(--text-primary)" }}
+            >
+              VibeMatch
+            </p>
+            <div className="vm-snake-badge--green vm-snake-badge mt-0.5" style={{ fontSize: "9px", padding: "1px 8px" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Free to join
+            </div>
+          </div>
         </div>
 
-        <div>
+        {/* Headline + perks */}
+        <div className="relative z-10">
           <h2
-            className="font-bold tracking-tight leading-snug mb-8"
-            style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", color: "var(--text-primary)" }}
+            className="font-bold tracking-tight leading-[1.1] mb-6 vm-animate-fade-up"
+            style={{ fontSize: "clamp(1.5rem, 2.5vw, 2rem)", color: "var(--text-primary)" }}
           >
-            The developer<br />networking platform.
+            The developer
+            <br />
+            <span className="vm-gradient-text">networking platform.</span>
           </h2>
-          <ul className="flex flex-col gap-3">
-            {PERKS.map((perk) => (
-              <li key={perk} className="flex items-center gap-3">
+
+          <ul className="flex flex-col gap-3.5">
+            {PERKS.map(({ text, color }, i) => (
+              <li
+                key={text}
+                className={`flex items-center gap-3 vm-animate-slide-right vm-delay-${(i + 1) * 100}`}
+              >
                 <span
-                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: "var(--success-bg)", color: "var(--success)" }}
+                  className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: `${color}1a`, border: `1px solid ${color}40` }}
                 >
-                  <Check size={12} strokeWidth={2.5} aria-hidden />
+                  <Check size={11} style={{ color }} strokeWidth={2.5} aria-hidden />
                 </span>
-                <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{perk}</span>
+                <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{text}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-          Free to join. No credit card required.
+        <p
+          className="relative z-10 text-xs vm-animate-fade-in vm-delay-600"
+          style={{ color: "var(--text-disabled)" }}
+        >
+          No credit card required · Cancel anytime
         </p>
       </aside>
 
       {/* ── Form panel ──────────────────────────────────────────────────── */}
       <div className="flex-1 flex items-center justify-center px-5 py-12">
-        <div className="w-full max-w-[340px]">
+        <div className="w-full max-w-[340px] vm-animate-scale-up">
 
-          <div className="lg:hidden flex items-center gap-1.5 mb-8">
-            <Zap size={16} className="text-brand-500" strokeWidth={2.2} aria-hidden />
-            <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>VibeMatch</span>
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center gap-2.5 mb-8">
+            <Image
+              src="/assets/vibeMatch-logo.png"
+              alt="VibeMatch"
+              width={32}
+              height={32}
+              className="vm-logo-img rounded-lg"
+              style={{ width: 32, height: 32 }}
+            />
+            <span
+              className="font-bold"
+              style={{ fontSize: "15px", letterSpacing: "-0.02em", color: "var(--text-primary)" }}
+            >
+              VibeMatch
+            </span>
           </div>
 
-          <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ color: "var(--text-primary)" }}>
+          {/* Page badge */}
+          <div className="vm-snake-badge vm-snake-badge--green mb-5" style={{ fontSize: "10px" }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" aria-hidden />
+            Join for free
+          </div>
+
+          <h1
+            className="font-bold tracking-tight mb-1"
+            style={{ fontSize: "1.55rem", letterSpacing: "-0.03em", color: "var(--text-primary)" }}
+          >
             Create your account
           </h1>
-          <p className="text-sm mb-8" style={{ color: "var(--text-muted)" }}>
+          <p className="text-sm mb-7" style={{ color: "var(--text-muted)" }}>
             Start connecting with developers worldwide
           </p>
 
@@ -127,7 +189,7 @@ export default function SignUpPage() {
             <button
               type="button"
               onClick={() => handleOAuth("github")}
-              className="vm-btn vm-btn-ghost w-full py-2.5"
+              className="vm-btn vm-btn-ghost w-full py-2.5 text-sm"
               aria-label="Sign up with GitHub"
             >
               <Github size={15} strokeWidth={1.8} aria-hidden />
@@ -136,7 +198,7 @@ export default function SignUpPage() {
             <button
               type="button"
               onClick={() => handleOAuth("google")}
-              className="vm-btn vm-btn-ghost w-full py-2.5"
+              className="vm-btn vm-btn-ghost w-full py-2.5 text-sm"
               aria-label="Sign up with Google"
             >
               <GoogleIcon />
@@ -208,7 +270,7 @@ export default function SignUpPage() {
                   id="passwordSignup"
                   type={showPassword ? "text" : "password"}
                   className="vm-input pr-10"
-                  placeholder="Min 8 chars, 1 uppercase, 1 symbol"
+                  placeholder="Min 8 chars, uppercase, symbol"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -224,8 +286,7 @@ export default function SignUpPage() {
                 >
                   {showPassword
                     ? <EyeOff size={15} strokeWidth={1.8} aria-hidden />
-                    : <Eye    size={15} strokeWidth={1.8} aria-hidden />
-                  }
+                    : <Eye    size={15} strokeWidth={1.8} aria-hidden />}
                 </button>
               </div>
             </div>
@@ -243,26 +304,34 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="vm-btn vm-btn-solid w-full py-2.5 mt-1"
+              className="vm-btn vm-btn-solid w-full py-2.5 mt-1 vm-btn-glow"
             >
               {loading ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" aria-hidden />
-                  Creating account…
-                </>
+                <><Loader2 size={14} className="animate-spin" aria-hidden /> Creating account…</>
               ) : (
-                <>
-                  Create account
-                  <ArrowRight size={14} strokeWidth={2} aria-hidden />
-                </>
+                <>Create account <ArrowRight size={14} strokeWidth={2} aria-hidden /></>
               )}
             </button>
 
             <p className="text-xs text-center" style={{ color: "var(--text-disabled)" }}>
               By signing up you agree to our{" "}
-              <Link href="#" style={{ color: "var(--text-muted)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}>Terms</Link>
+              <Link
+                href="#"
+                style={{ color: "var(--text-muted)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}
+              >
+                Terms
+              </Link>
               {" & "}
-              <Link href="#" style={{ color: "var(--text-muted)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}>Privacy</Link>
+              <Link
+                href="#"
+                style={{ color: "var(--text-muted)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; }}
+              >
+                Privacy
+              </Link>
             </p>
           </form>
 
@@ -270,10 +339,10 @@ export default function SignUpPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-medium transition-colors"
-              style={{ color: "var(--text-primary)" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--brand)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-primary)"; }}
+              className="font-semibold transition-colors"
+              style={{ color: "var(--brand)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--brand-hover)"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--brand)"; }}
             >
               Sign in
             </Link>

@@ -322,3 +322,200 @@ html.light select.vm-input { color-scheme: light; }
   color:       var(--text-muted);
   line-height: 1.6;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Snake / conic-gradient border animation
+   Usage:  <div class="vm-snake-badge"> … </div>
+   The pseudo-element creates a rotating conic gradient behind the element.
+   ══════════════════════════════════════════════════════════════════════════════ */
+@property --snake-angle {
+  syntax:        "<angle>";
+  inherits:      false;
+  initial-value: 0deg;
+}
+
+@keyframes snake-spin {
+  to { --snake-angle: 360deg; }
+}
+
+.vm-snake-badge {
+  position:        relative;
+  display:         inline-flex;
+  align-items:     center;
+  gap:             0.4rem;
+  padding:         0.28rem 0.75rem;
+  border-radius:   100px;
+  font-size:       0.7rem;
+  font-weight:     600;
+  letter-spacing:  0.04em;
+  background:      var(--bg-surface);
+  color:           var(--text-primary);
+  z-index:         0;
+  isolation:       isolate;
+}
+
+/* Rotating border via conic gradient on ::before */
+.vm-snake-badge::before {
+  content:         "";
+  position:        absolute;
+  inset:           -1.5px;
+  border-radius:   inherit;
+  background:      conic-gradient(
+    from var(--snake-angle),
+    transparent 0%,
+    var(--brand) 15%,
+    transparent 30%
+  );
+  animation:       snake-spin 2.8s linear infinite;
+  z-index:         -1;
+}
+
+/* Inner fill to cover the gradient except the border strip */
+.vm-snake-badge::after {
+  content:         "";
+  position:        absolute;
+  inset:           1.5px;
+  border-radius:   inherit;
+  background:      var(--bg-surface);
+  z-index:         -1;
+}
+
+/* ── Snake badge colour variants ───────────────────────────────────────────── */
+.vm-snake-badge--green::before {
+  background: conic-gradient(from var(--snake-angle), transparent 0%, #22c55e 15%, transparent 30%);
+}
+.vm-snake-badge--amber::before {
+  background: conic-gradient(from var(--snake-angle), transparent 0%, #f59e0b 15%, transparent 30%);
+}
+.vm-snake-badge--purple::before {
+  background: conic-gradient(from var(--snake-angle), transparent 0%, #8b5cf6 15%, transparent 30%);
+}
+.vm-snake-badge--cyan::before {
+  background: conic-gradient(from var(--snake-angle), transparent 0%, #06b6d4 15%, transparent 30%);
+}
+.vm-snake-badge--pink::before {
+  background: conic-gradient(from var(--snake-angle), transparent 0%, #ec4899 15%, transparent 30%);
+}
+.vm-snake-badge--white::before {
+  background: conic-gradient(from var(--snake-angle), transparent 0%, rgba(255,255,255,0.6) 15%, transparent 30%);
+}
+
+/* ── Static badge (no animation, just coloured border) ─────────────────────── */
+.vm-badge-static {
+  display:        inline-flex;
+  align-items:    center;
+  gap:            0.35rem;
+  padding:        0.25rem 0.65rem;
+  border-radius:  100px;
+  font-size:      0.7rem;
+  font-weight:    600;
+  letter-spacing: 0.04em;
+  border:         1px solid transparent;
+}
+.vm-badge-static--live    { background: rgba(34,197,94,0.12);  color: #22c55e;  border-color: rgba(34,197,94,0.3);  }
+.vm-badge-static--new     { background: rgba(99,102,241,0.12); color: var(--brand); border-color: rgba(99,102,241,0.3); }
+.vm-badge-static--hot     { background: rgba(239,68,68,0.12);  color: #f87171;  border-color: rgba(239,68,68,0.3);  }
+.vm-badge-static--gold    { background: rgba(245,158,11,0.12); color: #f59e0b;  border-color: rgba(245,158,11,0.3); }
+.vm-badge-static--cyber   { background: rgba(6,182,212,0.12);  color: #22d3ee;  border-color: rgba(6,182,212,0.3);  }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   Logo — dark-mode visibility fix
+   In dark mode PNG logos may be hard to see. We apply brightness filter
+   so the logo is always clearly visible on both themes.
+   ══════════════════════════════════════════════════════════════════════════════ */
+.vm-logo-img {
+  border-radius: 6px;
+  object-fit:    contain;
+  transition:    filter 0.25s ease;
+}
+/* Dark mode: boost brightness so the logo pops on black backgrounds */
+html.dark  .vm-logo-img { filter: brightness(1.0) contrast(1.1); }
+/* Light mode: slight contrast boost */
+html.light .vm-logo-img { filter: brightness(0.95) contrast(1.05); }
+
+/* Navbar logo — larger size */
+.vm-logo-img--nav    { width: 36px; height: 36px; }
+/* Footer logo */
+.vm-logo-img--footer { width: 28px; height: 28px; }
+/* Auth page hero logo */
+.vm-logo-img--auth   { width: 48px; height: 48px; }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   NamasteDev-inspired page / section entry animations
+   Applied automatically via the .vm-animate-* classes.
+   ══════════════════════════════════════════════════════════════════════════════ */
+@keyframes vm-fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes vm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes vm-slide-right {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes vm-scale-up {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes vm-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+.vm-animate-fade-up    { animation: vm-fade-up    0.55s cubic-bezier(0.22,1,0.36,1) both; }
+.vm-animate-fade-in    { animation: vm-fade-in    0.4s  ease both; }
+.vm-animate-slide-right{ animation: vm-slide-right 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.vm-animate-scale-up   { animation: vm-scale-up   0.45s cubic-bezier(0.22,1,0.36,1) both; }
+.vm-animate-float      { animation: vm-float      4s    ease-in-out infinite; }
+
+/* Stagger delays */
+.vm-delay-100 { animation-delay: 0.10s; }
+.vm-delay-200 { animation-delay: 0.20s; }
+.vm-delay-300 { animation-delay: 0.30s; }
+.vm-delay-400 { animation-delay: 0.40s; }
+.vm-delay-500 { animation-delay: 0.50s; }
+.vm-delay-600 { animation-delay: 0.60s; }
+
+/* ── Glow pulse for hero CTA buttons ───────────────────────────────────────── */
+@keyframes vm-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+  50%       { box-shadow: 0 0 24px 4px rgba(99,102,241,0.35); }
+}
+.vm-btn-glow { animation: vm-glow-pulse 2.5s ease-in-out infinite; }
+
+/* ── Cursor / caret blink for typed text effect ─────────────────────────────── */
+@keyframes vm-blink { 50% { opacity: 0; } }
+.vm-cursor {
+  display:    inline-block;
+  width:      2px;
+  height:     1em;
+  background: var(--brand);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation:  vm-blink 1s step-end infinite;
+}
+
+/* ── Gradient text ─────────────────────────────────────────────────────────── */
+.vm-gradient-text {
+  background:            linear-gradient(135deg, var(--brand) 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip:         text;
+}
+
+/* ── Shimmer text (NamasteDev hero style) ──────────────────────────────────── */
+@keyframes vm-shimmer-text {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+.vm-shimmer-text {
+  background:            linear-gradient(90deg, var(--text-muted) 0%, var(--text-primary) 40%, var(--text-muted) 80%);
+  background-size:       200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip:         text;
+  animation:             vm-shimmer-text 4s linear infinite;
+}
